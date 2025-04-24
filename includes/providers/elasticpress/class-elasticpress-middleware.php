@@ -84,15 +84,30 @@ class ElasticPress_Middleware {
 	 * @return array $taxonomies The taxonomies.
 	 */
 	public static function get_facets_settings() {
-		$category                      = get_taxonomy( 'category' );
-		$category->facet_type          = self::get_facet_type( 'category' );
-		$formats                       = get_taxonomy( 'formats' );
-		$formats->facet_type           = self::get_facet_type( 'formats' );
-		$bylines                       = get_taxonomy( 'bylines' );
-		$bylines->facet_type           = self::get_facet_type( 'bylines' );
-		$research_teams                = get_taxonomy( 'research-teams' );
-		$research_teams->facet_type    = self::get_facet_type( 'research-teams' );
-		$regions_countries             = get_taxonomy( 'regions-countries' );
+		$category = get_taxonomy( 'category' );
+		if ( ! $category ) {
+			return array();
+		}
+		$category->facet_type = self::get_facet_type( 'category' );
+		$formats              = get_taxonomy( 'formats' );
+		if ( ! $formats ) {
+			return array();
+		}
+		$formats->facet_type = self::get_facet_type( 'formats' );
+		$bylines             = get_taxonomy( 'bylines' );
+		if ( ! $bylines ) {
+			return array();
+		}
+		$bylines->facet_type = self::get_facet_type( 'bylines' );
+		$research_teams      = get_taxonomy( 'research-teams' );
+		if ( ! $research_teams ) {
+			return array();
+		}
+		$research_teams->facet_type = self::get_facet_type( 'research-teams' );
+		$regions_countries          = get_taxonomy( 'regions-countries' );
+		if ( ! $regions_countries ) {
+			return array();
+		}
 		$regions_countries->facet_type = self::get_facet_type( 'regions-countries' );
 		$years                         = (object) array(
 			'name'       => 'years',
