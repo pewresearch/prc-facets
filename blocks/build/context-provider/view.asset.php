@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array('@wordpress/interactivity', 'wp-polyfill', array('id' => '@wordpress/interactivity-router', 'import' => 'dynamic')), 'version' => '8e41d3a6ef007b549194', 'type' => 'module');

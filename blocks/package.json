@@ -1,0 +1,17 @@
+{
+	"name": "prc-facets-blocks",
+	"version": "1.0.0",
+	"author": "PRC",
+	"license": "GPL-2.0-or-later",
+	"description": "Blocks for the PRC Facets plugin.",
+	"scripts": {
+		"build": "wp-scripts build --experimental-modules --webpack-copy-php; wp-scripts build-blocks-manifest",
+		"start": "wp-scripts build-blocks-manifest; wp-scripts start --experimental-modules --webpack-copy-php"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.15.0"
+	},
+	"dependencies": {
+		"@wordpress/icons": "^10.22.0"
+	}
+}
