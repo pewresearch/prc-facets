@@ -1,7 +1,7 @@
 {
-    "name": "@pewresearch/prc-xxx",
+    "name": "@prc/facets",
     "version": "1.0.0",
-    "description": "Provides a module for PRC Platform that...",
+    "description": "PRC Facets is a module for PRC Platform that...",
     "scripts": {
         "build": "wp-scripts build",
         "test": "wp-scripts test-playwright",
