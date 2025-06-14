@@ -21,10 +21,20 @@ use WP_HTML_Tag_Processor;
  * @package           prc-platform
  */
 class Template {
+	/**
+	 * Constructor.
+	 *
+	 * @param Loader $loader The loader instance.
+	 */
 	public function __construct( $loader ) {
 		$this->init( $loader );
 	}
 
+	/**
+	 * Initialize the block.
+	 *
+	 * @param Loader $loader The loader instance.
+	 */
 	public function init( $loader = null ) {
 		if ( null !== $loader ) {
 			$loader->add_action( 'init', $this, 'block_init' );
@@ -33,22 +43,42 @@ class Template {
 
 	/**
 	 * This function takes the innerblocks provided, renders the first bock as a template, and then modifies specific html attributes to render a dropdown facet.
+	 *
+	 * @param array $facet The facet data.
+	 * @param array $inner_blocks The inner blocks to render.
+	 * @return string
 	 */
 	public function render_dropdown_facet( $facet, $inner_blocks ) {
-		$field_template    = $inner_blocks[0]; // The innerblocks should contain the template for this block, we will render out the html for a default value and then use it as a template for the rest.
-		$parsed_template   = new WP_Block_Parser_Block(
+		$field_template                         = $inner_blocks[0]; // The innerblocks should contain the template for this block, we will render out the html for a default value and then use it as a template for the rest.
+		$field_template['attrs']['placeholder'] = 'Select ' . ( isset( $facet['label'] ) ? $facet['label'] : 'Choice' );
+		$parsed_template                        = new WP_Block_Parser_Block(
 			$field_template['blockName'],
 			$field_template['attrs'],
 			$field_template['innerBlocks'],
 			$field_template['innerHTML'],
 			$field_template['innerContent']
 		);
+
 		$rendered_template = (
 			new WP_Block(
 				(array) $parsed_template,
 				array()
 			)
 		)->render();
+
+		// Replace data-wp-each--option with data-wp-each--choice.
+		$rendered_template = str_replace(
+			'data-wp-each--option',
+			'data-wp-each--choice',
+			$rendered_template
+		);
+		// Find all instances of context.option and replace them with context.choice.
+		$rendered_template = str_replace(
+			'context.option',
+			'context.choice',
+			$rendered_template
+		);
+
 		return $rendered_template;
 	}
 
@@ -56,18 +86,21 @@ class Template {
 	 * This function takes the innerblocks provided, renders the first bock as a template, and then modifies specific html attributes
 	 * for ingestiong by the interactivity api, converting them to wp-directives.
 	 *
-	 * @param array $inner_blocks
-	 * @return array
+	 * @param array  $inner_blocks The inner blocks to render.
+	 * @param string $template_data_src The data source for the template.
+	 * @return string
 	 */
 	public function render_checkbox_radio_facet_template( $inner_blocks, $template_data_src ) {
-		$field_template    = $inner_blocks[0]; // The innerblocks should contain the template for this block, we will render out the html for a default value and then use it as a template for the rest.
-		$parsed_template   = new WP_Block_Parser_Block(
+		$field_template = $inner_blocks[0]; // The innerblocks should contain the template for this block, we will render out the html for a default value and then use it as a template for the rest.
+
+		$parsed_template = new WP_Block_Parser_Block(
 			$field_template['blockName'],
 			$field_template['attrs'],
 			$field_template['innerBlocks'],
 			$field_template['innerHTML'],
 			$field_template['innerContent']
 		);
+
 		$rendered_template = (
 			new WP_Block(
 				(array) $parsed_template,
@@ -76,12 +109,20 @@ class Template {
 		)->render();
 
 		return wp_sprintf(
-			/* html */            '<template data-wp-each--choice="%s" data-wp-each-key="context.choice.value">%s</template>',
+			'<template data-wp-each--choice="%s" data-wp-each-key="context.choice.value">%s</template>',
 			$template_data_src,
 			$rendered_template,
 		);
 	}
 
+	/**
+	 * Render the block callback.
+	 *
+	 * @param array    $attributes The block attributes.
+	 * @param string   $content The block content.
+	 * @param WP_Block $block The block instance.
+	 * @return string
+	 */
 	public function render_block_callback( $attributes, $content, $block ) {
 		$target_namespace = 'prc-platform/facets-context-provider';
 		$facets           = $block->context[ $target_namespace ]['facets'];
@@ -96,101 +137,73 @@ class Template {
 		$facet_placeholder = wp_strip_all_tags( $facet_label );
 		$facet_slug        = $facet_name;
 
-		$facet      = $facets[ $facet_slug ];
-		$facet_data = $facet['choices'];
-		$selected   = (array) $facet['selected'];
+		$facet = $facets[ $facet_slug ];
 
-		if ( empty( $facet_data ) ) {
-			return '<!-- No choices for this facet -->';
-		}
+		$standard_template = '';
+		$expanded_template = '';
 
-		// For now, lets restrict this sorting to only lists.
-		if ( $facet_type !== 'dropdown' ) {
-			usort(
-				$facet_data,
-				function ( $a, $b ) {
-					if ( $a['count'] === $b['count'] ) {
-						return 0;
-					}
-					return $a['count'] > $b['count'] ? -1 : 1;
-				}
-			);
-		}
-
-
-		$choices = $facet_data;
-		// If the $choices exceeds the limit, we need to remove the excess choices and store them in a separate array, $expanded_choices.
-		$expanded_choices = array();
-		if ( $facet_limit < count( $choices ) && $facet_type !== 'dropdown' ) {
-			$expanded_choices = array_slice( $choices, $facet_limit );
-			$choices          = array_slice( $choices, 0, $facet_limit );
-		}
-
-		$new_content      = '';
-		$expanded_content = '';
-
+		// Set up the standard template.
 		if ( in_array( $facet_type, array( 'dropdown' ) ) ) {
-			$new_content .= $this->render_dropdown_facet( $facet, $block->parsed_block['innerBlocks'] );
+			$standard_template .= $this->render_dropdown_facet( $facet, $block->parsed_block['innerBlocks'] );
 		} elseif ( in_array( $facet_type, array( 'range' ) ) ) {
-			$new_content .= '<!-- Range facets are not yet supported. -->';
+			$standard_template .= '<!-- Range facets are not yet supported. -->';
 		} else {
-			$new_content      = $this->render_checkbox_radio_facet_template(
+			$standard_template = $this->render_checkbox_radio_facet_template(
 				$block->parsed_block['innerBlocks'],
-				'state.facetChoices',
+				'state.choices',
 			);
-			$expanded_content = $this->render_checkbox_radio_facet_template(
+			$expanded_template = $this->render_checkbox_radio_facet_template(
 				$block->parsed_block['innerBlocks'],
-				'state.facetExpandedChoices',
+				'state.expandedChoices',
 			);
 		}
 
-		if ( empty( $new_content ) ) {
+		// If there are expanded choices, set up the expanded template.
+		$expanded_template = ! empty( $expanded_template ) ? wp_sprintf(
+			'<button class="wp-block-prc-platform-facet-template__list-expanded-button" data-wp-on--click="%1$s" data-wp-text="%2$s"></button><div class="wp-block-prc-platform-facet-template__list-expanded">%3$s</div>',
+			'actions.onExpand',
+			'context.expandedLabel',
+			$expanded_template
+		) : '';
+
+		if ( empty( $standard_template ) ) {
 			return '<!-- Could not render this facet -->';
 		}
 
+		$tag = new WP_HTML_Tag_Processor( $content );
+		$tag->next_tag( 'div' );
+		$style     = $tag->get_attribute( 'style' );
+		$classname = $tag->get_attribute( 'class' );
+
 		$block_wrapper_attrs = get_block_wrapper_attributes(
 			array(
-				'data-wp-interactive'                 => wp_json_encode(
-					array(
-						'namespace' => $target_namespace,
-					)
-				),
+				'data-wp-interactive'                 => $target_namespace,
 				'data-wp-key'                         => $facet_slug,
 				'data-wp-context'                     => wp_json_encode(
 					array(
-						'placeholder'     => $facet_placeholder,
-						'expanded'        => false,
-						'expandedLabel'   => '+ More',
-						'limit'           => $facet_limit,
-						'facetSlug'       => $facet_slug,
-						'facetType'       => $facet_type,
-						'data'            => $facet_data,
-						'selected'        => $selected,
-						'choices'         => $choices,
-						'expandedChoices' => $expanded_choices,
-						'activeIndex'     => 0,
-						'searchValue'     => '',
+						'expanded'      => false,
+						'expandedLabel' => '+ More',
+						'placeholder'   => $facet_placeholder,
+						'limit'         => $facet_limit,
+						'facetSlug'     => $facet_slug,
+						'facetType'     => $facet_type,
 					)
 				),
-				'data-wp-watch--on-updates'           => 'callbacks.onUpdates',
+				'data-wp-init'                        => 'callbacks.onTemplateInit',
 				'data-wp-watch--on-expand'            => 'callbacks.onExpand',
+				'data-wp-class--has-choices'          => 'state.hasChoices',
 				'data-wp-class--has-expanded-choices' => 'state.hasExpandedChoices',
 				'data-wp-class--has-selections'       => 'state.hasSelections',
-				'data-wp-class--is-expanded'          => 'context.expanded',
-				'data-wp-class--is-processing'        => 'state.isProcessing',
-				'style'                               => '--block-gap: ' . \PRC\Platform\Block_Utils\get_block_gap_support_value( $attributes ) . ';',
-				'class'                               => \PRC\Platform\Block_Utils\classNames(
-					array(
-						'is-type-' . $facet_type,
-					)
-				),
+				'data-wp-class--is-expanded'          => 'state.isExpanded',
+				'style'                               => $style,
+				'class'                               => $classname,
 			)
 		);
 
 		if ( in_array( $facet_type, array( 'dropdown', 'range' ) ) ) {
 			$template = '<div %1$s>%2$s %3$s</div>';
 		} else {
-			$template = '<div %1$s>%2$s<div class="wp-block-prc-block-facet-template-list">%3$s</div>%4$s</div>';
+			$template = '<div %1$s>%2$s<div class="wp-block-prc-platform-facet-template__list">%3$s</div>%4$s</div>';
 		}
 
 		$clear_icon = \PRC\Platform\Icons\render( 'solid', 'circle-xmark' );
@@ -202,25 +215,19 @@ class Template {
 			$clear_icon,
 		);
 
-		$expanded_content = ! empty( $expanded_content ) ? wp_sprintf(
-			'<button class="wp-block-prc-platform-facet-template__list-expanded-button" data-wp-on--click="%1$s" data-wp-text="%2$s"></button><div class="wp-block-prc-platform-facet-template__list-expanded">%3$s</div>',
-			'actions.onExpand',
-			'context.expandedLabel',
-			$expanded_content
-		) : '';
-
 		return wp_sprintf(
 			$template,
 			$block_wrapper_attrs,
 			$label,
-			$new_content,
-			$expanded_content,
+			$standard_template,
+			$expanded_template,
 		);
 	}
 
 	/**
+	 * Register the block.
+	 *
 	 * @hook init
-	 * @return void
 	 */
 	public function block_init() {
 		register_block_type_from_metadata(

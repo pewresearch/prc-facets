@@ -98,6 +98,25 @@ class Context_Provider {
 	}
 
 	/**
+	 * Construct structured tokens from selected facets.
+	 *
+	 * @return array
+	 */
+	public function get_tokens_from_selected_facets() {
+		$tokens = array();
+		foreach ( $this->selected as $selected_facet => $selected_values ) {
+			foreach ( $selected_values as $selected_value ) {
+				$tokens[] = array(
+					'value' => $selected_facet,
+					'slug'  => sanitize_title( $selected_value ),
+					'label' => ucwords( str_replace( array( '-', '_' ), ' ', $selected_value ) ),
+				);
+			}
+		}
+		return $tokens;
+	}
+
+	/**
 	 * Get the facet data from server memory and apply it to the block context for the context provider, facet template, and selected tokens blocks.
 	 *
 	 * @hook render_block_context
@@ -119,6 +138,7 @@ class Context_Provider {
 
 		$context['prc-platform/facets-context-provider'] = array(
 			'selected'     => (object) $this->selected,
+			'tokens'       => $this->get_tokens_from_selected_facets(),
 			'facets'       => $this->facets,
 			'pagination'   => $this->pagination,
 			'prefetched'   => array(),
@@ -155,6 +175,7 @@ class Context_Provider {
 					'data-wp-interactive'                 => 'prc-platform/facets-context-provider',
 					'data-wp-class--no-posts'             => '!state.hasPosts',
 					'data-wp-class--is-processing'        => 'state.isProcessing',
+					'data-wp-init--facetsInit'            => 'callbacks.onInit',
 					'data-wp-watch--on-selection'         => 'callbacks.onSelection',
 					'data-wp-watch--on-ep-sort-by-update' => 'callbacks.onEpSortByUpdate',
 				)

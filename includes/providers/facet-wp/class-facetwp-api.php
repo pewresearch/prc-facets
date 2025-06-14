@@ -40,6 +40,13 @@ class FacetWP_API {
 	public $cache_group;
 
 	/**
+	 * The cache duration.
+	 *
+	 * @var int
+	 */
+	public $cache_duration = 60 * MINUTE_IN_SECONDS;
+
+	/**
 	 * The selected facets.
 	 *
 	 * @var array
@@ -89,6 +96,13 @@ class FacetWP_API {
 	}
 
 	/**
+	 * Clear the cache.
+	 */
+	public function clear_cache() {
+		wp_cache_delete( $this->cache_key, $this->cache_group );
+	}
+
+	/**
 	 * Construct the query arguments.
 	 *
 	 * @param array $query_args The query arguments.
@@ -106,7 +120,6 @@ class FacetWP_API {
 		if ( ! empty( $query_args['s'] ) ) {
 			$query_args['es'] = true;
 		}
-		do_action( 'qm/debug', 'PRC Facets - Query Args:: ' . print_r( $query_args, true ) );
 		return $query_args;
 	}
 
@@ -287,6 +300,34 @@ class FacetWP_API {
 	}
 
 	/**
+	 * Process the FacetWP API request.
+	 *
+	 * Forked from FacetWP's official FacetWP_API_Fetch::process_request
+	 * method, which powers the /facetwp/v1/fetch REST API endpoint.
+	 *
+	 * @param array $params The parameters.
+	 * @return array The processed facets.
+	 */
+	public function process_request( $params = array() ) {
+		$request = new \WP_REST_Request( 'POST', '/facetwp/v1/fetch' );
+		$request->set_param( 'data', wp_json_encode( $params ) );
+
+		// Send request.
+		$response = rest_do_request( $request );
+		// Check if the response is an error.
+		if ( is_wp_error( $response ) ) {
+			do_action( 'qm/error', 'Facet WP (API) Error' );
+			return array(
+				'facets'     => array(),
+				'pager'      => array(),
+				'query_args' => array(),
+			);
+		}
+		$server = rest_get_server();
+		return $server->response_to_data( $response, false );
+	}
+
+	/**
 	 * Query the facets.
 	 *
 	 * @return array The facets.
@@ -303,7 +344,7 @@ class FacetWP_API {
 			$failover = true;
 		}
 		if ( is_search() || $failover ) {
-			// @TODO: Experiment with creating a ElasticPress Facets data provider that matches this format... just needs to transform arguments...
+			do_action( 'qm/error', 'Facets Failover' . print_r( $this->registered_facets, true ) );
 			return array(
 				'facets'     => array(),
 				'query_args' => array(),
@@ -330,25 +371,28 @@ class FacetWP_API {
 		);
 
 		// Build FacetWP rest request.
-		$request = new \WP_REST_Request( 'POST', '/facetwp/v1/fetch' );
-		$request->set_param( 'data', wp_json_encode( $args ) );
-
-		// Send request.
-		$response = rest_do_request( $request );
-		$server   = rest_get_server();
-		$data     = $server->response_to_data( $response, false );
+		$data = $this->process_request( $args );
+		// Double check that facets exists in the data.
+		if ( ! array_key_exists( 'facets', $data ) ) {
+			do_action( 'qm/error', 'No facets data' . print_r( $data, true ) );
+			return array(
+				'facets'     => array(),
+				'pager'      => array(),
+				'query_args' => array(),
+			);
+		}
 
 		// Get the facets data and parse it...
 		$data['facets'] = $this->parse_facets( $data['facets'] );
 
 		if ( ! is_preview() || ! empty( $data['facets'] ) ) {
-			// If cache is enabled, cache the facets for 5 minutes.
+			// If cache is enabled, cache the facets for 30 minutes.
 			if ( $this->enable_cache ) {
 				wp_cache_set(
 					$this->cache_key,
 					$data,
 					$this->cache_group,
-					30 * MINUTE_IN_SECONDS
+					$this->cache_duration
 				);
 			}
 		}

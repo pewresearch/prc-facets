@@ -175,9 +175,11 @@ class FacetWP_Middleware {
 	 * Allow FacetWP rest api access
 	 *
 	 * @hook facetwp_api_can_access
-	 * @return true
+	 *
+	 * @param bool $boolean Whether to allow access.
+	 * @return bool
 	 */
-	public function allow_facetwp_api_access() {
+	public function allow_facetwp_api_access( $boolean ) {
 		return true;
 	}
 

@@ -1,22 +1,32 @@
 /**
- * React hook that is used to mark the block wrapper element.
- * It provides all the necessary props like the class name.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
+ * External Dependencies
  */
-import { InnerBlocks } from '@wordpress/block-editor';
+import { getBlockGapSupportValue } from '@prc/block-utils';
+import clsx from 'clsx';
 
 /**
- * The save function defines the way in which the different attributes should
- * be combined into the final markup, which is then serialized by the block
- * editor into `post_content`.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#save
- *
+ * WordPress Dependencies
+ */
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+
+/**
+ * Save the block.
  * @param {Object} props            Properties passed to the function.
  * @param {Object} props.attributes Available block attributes.
  * @return {WPElement} Element to render.
  */
-export default function Save( { attributes } ) {
-	return <InnerBlocks.Content />;
+export default function Save( { attributes,  } ) {
+	const { facetType } = attributes;
+	const blockProps = useBlockProps.save({
+		className: `is-type-${facetType}`,
+		style: {
+			'--block-gap': getBlockGapSupportValue(attributes),
+		},
+	});
+	const innerBlocksProps = useInnerBlocksProps.save();
+	return (
+		<div {...blockProps}>
+			{innerBlocksProps.children}
+		</div>
+	);
 }

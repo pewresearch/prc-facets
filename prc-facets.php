@@ -31,6 +31,9 @@ if ( ! defined( 'WPINC' ) ) {
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+if ( ! defined( 'DEFAULT_TECHNICAL_CONTACT' ) ) {
+	define( 'DEFAULT_TECHNICAL_CONTACT', 'webdev@pewresearch.org' );
+}
 
 define( 'PRC_FACETS_FILE', __FILE__ );
 define( 'PRC_FACETS_DIR', __DIR__ );

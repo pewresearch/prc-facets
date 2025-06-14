@@ -25,9 +25,7 @@ import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
 const getTemplateForType = (type, name) => {
 	const defaultAttrs = {
 		interactiveNamespace: 'prc-platform/facets-context-provider',
-		isInteractive: true,
 	};
-	console.log('getTemplateForType', type, name, defaultAttrs);
 	const label = `${name
 		.replace(/_/g, ' ')
 		.replace(/\w\S*/g, (w) =>
@@ -49,12 +47,14 @@ const getTemplateForType = (type, name) => {
 		case 'dropdown':
 			return [
 				[
-					'prc-platform/facet-select-field',
+					'prc-block/form-input-select',
 					{
 						placeholder: label,
+						displayLabel: false,
 						metadata: {
 							name,
 						},
+						interactiveSubsumption: true,
 						...defaultAttrs,
 					},
 				],
@@ -62,22 +62,26 @@ const getTemplateForType = (type, name) => {
 		case 'range':
 			return [
 				[
-					'prc-platform/facet-select-field',
+					'prc-block/form-input-select',
 					{
 						placeholder: label,
+						displayLabel: false,
 						metadata: {
 							name,
 						},
+						interactiveSubsumption: true,
 						...defaultAttrs,
 					},
 				],
 				[
-					'prc-platform/facet-select-field',
+					'prc-block/form-input-select',
 					{
 						placeholder: label,
+						displayLabel: false,
 						metadata: {
 							name,
 						},
+						interactiveSubsumption: true,
 						...defaultAttrs,
 					},
 				],
@@ -153,7 +157,7 @@ export default function Controls({
 				<div>
 					<SelectControl
 						label="Facet"
-						help="Select a facet from those registered with PRC Platform. Updating this will reset the template and any style changes."
+						help="Select a facet registered with the PRC Platform. Updating this will reset the template and any style changes."
 						options={options}
 						value={facetName}
 						onChange={(value) => {
@@ -180,7 +184,7 @@ export default function Controls({
 					/>
 					<NumberControl
 						label="Limit"
-						help="The number of choices to display. Any additional choices will be hidden behind a 'More' button."
+						help="Number of choices to display. Additional choices will be hidden behind a 'More' button."
 						value={facetLimit}
 						onChange={(value) =>
 							setAttributes({ facetLimit: value })

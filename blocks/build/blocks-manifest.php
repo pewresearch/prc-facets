@@ -143,152 +143,14 @@ return array(
 		'render' => 'file:./render.php',
 		'viewScriptModule' => 'file:./view.js'
 	),
-	'select-field' => array(
-		'$schema' => 'https://schemas.wp.org/trunk/block.json',
-		'apiVersion' => 3,
-		'name' => 'prc-platform/facet-select-field',
-		'version' => '2.0.0',
-		'title' => 'Facet Select Field',
-		'category' => 'widgets',
-		'description' => 'Create a dropdown component with a list of options.',
-		'attributes' => array(
-			'placeholder' => array(
-				'type' => 'string',
-				'default' => 'Select an option'
-			),
-			'disabled' => array(
-				'type' => 'boolean',
-				'default' => false
-			),
-			'backgroundColor' => array(
-				'type' => 'string',
-				'default' => 'ui-white'
-			),
-			'textColor' => array(
-				'type' => 'string',
-				'default' => 'ui-black'
-			)
-		),
-		'supports' => array(
-			'anchor' => true,
-			'html' => false,
-			'reusable' => true,
-			'inserter' => false,
-			'__experimentalBorder' => array(
-				'color' => true,
-				'width' => true,
-				'radius' => true
-			),
-			'color' => array(
-				'gradients' => false
-			),
-			'spacing' => array(
-				'padding' => true,
-				'margin' => true
-			),
-			'typography' => array(
-				'fontSize' => true,
-				'lineHeight' => true,
-				'__experimentalFontFamily' => true,
-				'__experimentalFontWeight' => true
-			),
-			'interactivity' => true
-		),
-		'usesContext' => array(
-			'prc-facets/template/facetType',
-			'prc-facets/template/facetName',
-			'prc-facets/template/facetLabel'
-		),
-		'styles' => array(
-			array(
-				'name' => 'default',
-				'label' => 'Default',
-				'isDefault' => true
-			)
-		),
-		'parent' => array(
-			'prc-block/form-field'
-		),
-		'textdomain' => 'form-input-select',
-		'editorScript' => 'file:./index.js',
-		'style' => 'file:./style-index.css',
-		'render' => 'file:./render.php'
-	),
-	'selected-tokens' => array(
-		'$schema' => 'https://schemas.wp.org/trunk/block.json',
-		'apiVersion' => 3,
-		'name' => 'prc-platform/facets-selected-tokens',
-		'version' => '0.1.0',
-		'title' => 'Facets Selected Tokens',
-		'category' => 'theme',
-		'description' => 'Display a list of selected facets styled as tokens.',
-		'attributes' => array(
-			'orientation' => array(
-				'type' => 'string',
-				'default' => 'vertical'
-			),
-			'tokenBorderColor' => array(
-				'type' => 'string',
-				'default' => 'ui-gray-light'
-			),
-			'tokenBackgroundColor' => array(
-				'type' => 'string',
-				'default' => 'ui-gray-very-light'
-			)
-		),
-		'supports' => array(
-			'anchor' => true,
-			'html' => false,
-			'multiple' => false,
-			'reusable' => false,
-			'color' => array(
-				'text' => true,
-				'link' => true
-			),
-			'spacing' => array(
-				'blockGap' => true,
-				'margin' => array(
-					'top',
-					'bottom'
-				),
-				'padding' => true,
-				'__experimentalDefaultControls' => array(
-					'padding' => true
-				)
-			),
-			'typography' => array(
-				'fontSize' => true,
-				'__experimentalFontFamily' => true,
-				'__experimentalDefaultControls' => array(
-					'fontSize' => true,
-					'__experimentalFontFamily' => true
-				)
-			),
-			'interactivity' => array(
-				'clientNavigation' => true
-			)
-		),
-		'usesContext' => array(
-			'postType',
-			'templateSlug',
-			'previewPostType',
-			'facetsContextProvider'
-		),
-		'textdomain' => 'selected-tokens',
-		'editorScript' => 'file:./index.js',
-		'editorStyle' => 'file:./index.css',
-		'style' => 'file:./style-index.css',
-		'render' => 'file:./render.php',
-		'viewScriptModule' => 'file:./view.js'
-	),
 	'template' => array(
 		'$schema' => 'https://schemas.wp.org/trunk/block.json',
 		'apiVersion' => 3,
 		'name' => 'prc-platform/facet-template',
-		'version' => '2.0.0',
+		'version' => '2.5.0',
 		'title' => 'Facet Template',
 		'category' => 'theme',
-		'description' => 'Display a facet given its slug and type as a block',
+		'description' => 'Construct a facet interface using its slug, type, and label as a block. Depending on the type, the block will serve as a template for rendering repeated facet values. For instance, a checkbox facet will display a checkbox for each value, a radio facet will show a radio button for each value, and a dropdown facet will present a dropdown with the values.',
 		'attributes' => array(
 			'facetName' => array(
 				'type' => 'string',
@@ -311,10 +173,6 @@ return array(
 				'type' => 'number',
 				'default' => 10
 			),
-			'isInteractive' => array(
-				'type' => 'boolean',
-				'default' => true
-			),
 			'interactiveNamespace' => array(
 				'type' => 'string',
 				'default' => 'prc-platform/facets-context-provider'
@@ -323,6 +181,7 @@ return array(
 		'supports' => array(
 			'anchor' => true,
 			'html' => false,
+			'interactivity' => true,
 			'spacing' => array(
 				'blockGap' => true,
 				'margin' => array(
@@ -333,6 +192,11 @@ return array(
 				'__experimentalDefaultControls' => array(
 					'padding' => true
 				)
+			),
+			'__experimentalBorder' => array(
+				'color' => true,
+				'width' => true,
+				'radius' => true
 			),
 			'typography' => array(
 				'fontSize' => true,
@@ -347,8 +211,7 @@ return array(
 					'fontSize' => true,
 					'__experimentalFontFamily' => true
 				)
-			),
-			'interactivity' => true
+			)
 		),
 		'selectors' => array(
 			'root' => '.wp-block-prc-platform-facet-template',

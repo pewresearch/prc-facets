@@ -20,8 +20,6 @@ class Blocks {
 		require_once PRC_FACETS_BLOCKS_DIR . '/build/context-provider/class-context-provider.php';
 		require_once PRC_FACETS_BLOCKS_DIR . '/build/results-info/class-results-info.php';
 		require_once PRC_FACETS_BLOCKS_DIR . '/build/search-relevancy/class-search-relevancy.php';
-		require_once PRC_FACETS_BLOCKS_DIR . '/build/select-field/class-select-field.php';
-		require_once PRC_FACETS_BLOCKS_DIR . '/build/selected-tokens/class-selected-tokens.php';
 		require_once PRC_FACETS_BLOCKS_DIR . '/build/template/class-template.php';
 
 		$this->init( $loader );
@@ -39,8 +37,6 @@ class Blocks {
 		new Context_Provider( $loader );
 		new Results_Info( $loader );
 		new Search_Relevancy( $loader );
-		new Select_Field( $loader );
-		new Selected_Tokens( $loader );
 		new Template( $loader );
 	}
 }

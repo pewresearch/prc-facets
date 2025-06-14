@@ -10,14 +10,12 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 		mouseEnterPreFetchTimer: 500,
 		navigateTimer: 1000,
 		epSortByDate: false,
+		isProcessing: false,
 		get hasPosts() {
 			return state?.pagination?.total_rows > 0;
 		},
-		get getPostCount() {
+		get postCount() {
 			return state?.pagination?.total_rows || 0;
-		},
-		get getSelected() {
-			return state.selected;
 		},
 		get getServerSelected() {
 			return getServerState().selected;
@@ -102,6 +100,11 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 				newUrl
 			);
 
+			// Update local state with state from the server.
+			const serverState = getServerState();
+			state.facets = serverState.facets;
+			state.tokens = serverState.tokens;
+
 			// Scroll to the top of the page.
 			const { ref } = getElement();
 			if (ref) {
@@ -142,11 +145,6 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 			// Because onClear actions occur after routing
 			// has occured we need to get the selected from the server state.
 			const currentlySelected = state.selected;
-			console.log('parent onClear', {
-				facetSlug,
-				facetValue,
-				currentlySelected,
-			});
 
 			// If there is no facetSlug then clear all selected facets and run updateResults.
 			if (!facetSlug) {
@@ -165,17 +163,6 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 				return;
 			}
 
-			// // Clear all inputs that have the value of the facetSlug.
-			// Object.keys(state).find((key) => {
-			// 	if (
-			// 		typeof state[key] === 'object' &&
-			// 		tmp[facetSlug].includes(state[key]?.value)
-			// 	) {
-			// 		state[key].checked = false;
-			// 	}
-			// });
-			console.log('pre check:', { currentlySelected, facetSlug });
-
 			currentlySelected[facetSlug] = [];
 			state.selected = { ...currentlySelected };
 			return state.selected;
@@ -186,7 +173,7 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 		 * When a facet is selected, we need to update the results.
 		 */
 		onSelection() {
-			const selected = state.getSelected;
+			const selected = state.selected;
 			const keysLength = Object.keys(selected).length;
 			// No selections? Disable updates.
 			if (keysLength <= 0) {

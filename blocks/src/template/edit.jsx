@@ -86,11 +86,13 @@ export default function Edit({
 						allowedBlocks: [
 							'prc-block/form-input-checkbox',
 							'prc-block/form-input-select',
-							'prc-block/form-input-text',
 						],
 						blockContexts: templateContexts,
 						isResolving: false,
 						loadingLabel: 'Loading Facet...',
+						wrapperProps: {
+							className: 'wp-block-prc-platform-facet-template__list',
+						},
 					}}
 				/>
 				{'dropdown' !== facetType && (

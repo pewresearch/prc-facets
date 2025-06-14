@@ -11,16 +11,21 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--block-gap);
-	// Moved the styling for the global is-processing into facets-context-provider for now...
-	// When block states comes online this should be made more abstracted.
-	// &.is-processing {
-	// 	opacity: 0.5;
-	// }
+
+	&:not(.has-choices):not(.wp-block) {
+		display: none;
+		// No top margin for the next facet if this one is empty.
+		& + .wp-block-prc-platform-facet-template.has-choices {
+			margin-block-start: 0px!important;
+		}
+	}
+
 	&:not(.is-expanded) {
 		.wp-block-prc-platform-facet-template__list-expanded {
 			display: none;
 		}
 	}
+
 	.wp-block-prc-platform-facet-template__label {
 		margin: 0!important;
 		display: flex;
@@ -54,6 +59,18 @@
 	.wp-block-prc-block-platform-facet-template__clear {
 		margin: 0;
 		float: right;
+	}
+
+	.wp-block-prc-block-form-input-checkbox:has(input:checked) {
+		label {
+			font-weight: 600;
+		}
+	}
+
+	.wp-block-prc-platform-facet-template__list {
+		display: inherit;
+		flex-direction: inherit;
+		gap: calc(var(--block-gap) / 2);
 	}
 }
 

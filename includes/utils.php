@@ -43,7 +43,7 @@ function use_ep_facets() {
  * @return string The cache key.
  */
 function construct_cache_key( $query = array(), $selected = array() ) {
-	$invalidate = '04/15/2025';
+	$invalidate = '06/12/2025';
 	// Remove pagination from the query args.
 	$query = array_merge(
 		$query,
