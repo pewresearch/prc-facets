@@ -343,6 +343,10 @@ class FacetWP_API {
 		if ( 1 === get_current_blog_id() ) {
 			$failover = true;
 		}
+		// If a request from Googlebot, failover. 
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && strpos( $_SERVER['HTTP_USER_AGENT'], 'Googlebot' ) !== false ) {
+			$failover = true;
+		}
 		if ( is_search() || $failover ) {
 			do_action( 'qm/error', 'Facets Failover' . print_r( $this->registered_facets, true ) );
 			return array(
