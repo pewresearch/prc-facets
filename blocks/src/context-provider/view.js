@@ -73,19 +73,19 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 			const newUrl = state.getUpdatedUrl;
 
 			if (newUrl === currentUrl) {
-				console.log(
-					'Facets_Context_Provider -> updateResults::',
-					'no change in url'
-				);
+				// console.log(
+				// 	'Facets_Context_Provider -> updateResults::',
+				// 	'no change in url'
+				// );
 				return;
 			}
 
-			console.log(
-				'Facets_Context_Provider -> updateResults::',
-				state,
-				currentUrl,
-				newUrl
-			);
+			// console.log(
+			// 	'Facets_Context_Provider -> updateResults::',
+			// 	state,
+			// 	currentUrl,
+			// 	newUrl
+			// );
 
 			state.isProcessing = true;
 
@@ -93,17 +93,19 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 			const router = yield import('@wordpress/interactivity-router');
 			yield router.actions.navigate(newUrl);
 
-			console.log(
-				'YIELD: Facets_Context_Provider <- updateResults::',
-				getServerState(),
-				currentUrl,
-				newUrl
-			);
+			// console.log(
+			// 	'YIELD: Facets_Context_Provider <- updateResults::',
+			// 	getServerState(),
+			// 	currentUrl,
+			// 	newUrl
+			// );
 
 			// Update local state with state from the server.
 			const serverState = getServerState();
 			state.facets = serverState.facets;
 			state.tokens = serverState.tokens;
+
+			// console.log('Facets Global State Update::', state.facets);
 
 			// Scroll to the top of the page.
 			const { ref } = getElement();
@@ -177,13 +179,13 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 			const keysLength = Object.keys(selected).length;
 			// No selections? Disable updates.
 			if (keysLength <= 0) {
-				console.log(
-					'Facets_Context_Provider -> onSelection:: FALSE NO SELECTIONS'
-				);
+				// console.log(
+				// 	'Facets_Context_Provider -> onSelection:: FALSE NO SELECTIONS'
+				// );
 				state.isDisabled = true;
 			} else {
 				// Once we have some selections, lets run a refresh.
-				console.log('Facets_Context_Provider -> onSelection::', state);
+				// console.log('Facets_Context_Provider -> onSelection::', state);
 				actions.updateResults();
 				state.isDisabled = false;
 			}

@@ -1,5 +1,5 @@
 {
-	"name": "prc-facets-blocks",
+	"name": "@prc/facets-blocks",
 	"version": "1.0.0",
 	"author": "PRC",
 	"license": "GPL-2.0-or-later",
@@ -9,9 +9,9 @@
 		"start": "wp-scripts build-blocks-manifest; wp-scripts start --experimental-modules --webpack-copy-php"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^30.15.0"
+		"@wordpress/scripts": "^30.22.0"
 	},
 	"dependencies": {
-		"@wordpress/icons": "^10.22.0"
+		"@wordpress/icons": "^10.29.0"
 	}
 }

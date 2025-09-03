@@ -79,7 +79,7 @@ class ElasticPress_Facets_API {
 		$this->ep_facets   = new \ElasticPress\Feature\Facets\Facets();
 		$this->selected    = $this->get_selected( null, true );
 		$this->cache_key   = construct_cache_key( $query, $this->selected );
-		$this->cache_group = construct_cache_group() . '-ep';
+		$this->cache_group = construct_cache_group() . '-ep-v1';
 	}
 
 	/**
@@ -101,7 +101,7 @@ class ElasticPress_Facets_API {
 	 */
 	public function get_selected( $key = null, $failover_to_all = false ) {
 		$selected = $this->ep_facets->get_selected();
-		// If s key is set, then we're on a search page. Lets remoe it we dont need it
+		// If s key is set, then we're on a search page. Lets remove it we dont need it in the facets.
 		if ( array_key_exists( 's', $selected ) ) {
 			unset( $selected['s'] );
 		}
@@ -136,6 +136,7 @@ class ElasticPress_Facets_API {
 		}
 		global $ep_facet_aggs;
 		$aggs = $ep_facet_aggs;
+
 		foreach ( $aggs as $facet_slug => $facets_data ) {
 			// Handle Year:
 			if ( in_array(
@@ -275,7 +276,7 @@ class ElasticPress_Facets_API {
 		$aggregations = $this->get_aggregations();
 		$facets       = array();
 		foreach ( $aggregations as $facet_slug => $facets_data ) {
-			// do_action( 'qm/debug', 'PRC Facets - EP - Processing Facet:: ' . $facet_slug );
+			do_action( 'qm/debug', 'PRC Facets - EP - Processing Facet:: ' . $facet_slug );
 			global $ep_facet_aggs;
 			$aggs = $ep_facet_aggs;
 			if ( ! in_array(

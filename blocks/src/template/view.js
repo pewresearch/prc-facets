@@ -34,14 +34,6 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 				return [];
 			}
 			if ('dropdown' === facetType) {
-				console.log(
-					'construct dropdown choices for ',
-					facetSlug,
-					state.facets[facetSlug],
-					{
-						...context,
-					}
-				);
 				return [...state.facets[facetSlug].choices].sort((a, b) => {
 					// Check if both values are numbers
 					const aNum = Number(a.label);
@@ -184,7 +176,10 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 				'dropdown' === facetType &&
 				state.facets[facetSlug].selected.length > 0
 			) {
-				_placeholder = state.facets[facetSlug].selected[0]
+				// Get the first value out of selected as a string
+				const firstValue =
+					state.facets[facetSlug].selected[0].toString();
+				_placeholder = firstValue
 					.replace(/-/g, ' ')
 					.replace(/\b\w/g, (l) => l.toUpperCase());
 			}
@@ -338,6 +333,13 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 				context.expanded = false;
 			}
 		}),
+		onDropdownArrowClick: withSyncEvent((event) => {
+			const context = getContext();
+			const { facetType } = context;
+			if ('dropdown' === facetType) {
+				context.expanded = !context.expanded;
+			}
+		}),
 		moveThroughChoices: (direction, ref) => {
 			const { inputOptions } = state;
 			const { activeIndex } = getContext();
@@ -385,7 +387,6 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 			const { selected } = state;
 			const { value } = choice;
 			selected[facetSlug] = [value];
-			console.log('onInputOptionClick', { ...context }, value, selected);
 		}),
 		onInputCheckboxClick: withSyncEvent((event) => {
 			const context = getContext();

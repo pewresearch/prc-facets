@@ -51,7 +51,10 @@ class Template {
 	public function render_dropdown_facet( $facet, $inner_blocks ) {
 		$field_template                         = $inner_blocks[0]; // The innerblocks should contain the template for this block, we will render out the html for a default value and then use it as a template for the rest.
 		$field_template['attrs']['placeholder'] = 'Select ' . ( isset( $facet['label'] ) ? $facet['label'] : 'Choice' );
-		$parsed_template                        = new WP_Block_Parser_Block(
+		// Force all form-input-select interactivity to be subsumed by facet-template.
+		$field_template['attrs']['interactiveSubsumption'] = true;
+		$field_template['attrs']['interactiveNamespace']   = 'prc-platform/facet-template';
+		$parsed_template                                   = new WP_Block_Parser_Block(
 			$field_template['blockName'],
 			$field_template['attrs'],
 			$field_template['innerBlocks'],
@@ -136,6 +139,10 @@ class Template {
 		$facet_label       = array_key_exists( 'facetLabel', $attributes ) ? $attributes['facetLabel'] : '';
 		$facet_placeholder = wp_strip_all_tags( $facet_label );
 		$facet_slug        = $facet_name;
+
+		if ( ! isset( $facets[ $facet_slug ] ) ) {
+			return '<!-- No facet data -->';
+		}
 
 		$facet = $facets[ $facet_slug ];
 
