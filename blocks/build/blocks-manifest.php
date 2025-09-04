@@ -31,7 +31,6 @@ return array(
 		),
 		'textdomain' => 'prc-facets-context-provider',
 		'editorScript' => 'file:./index.js',
-		'viewScriptModule' => 'file:./view.js',
 		'style' => 'file:./style-index.css'
 	),
 	'results-info' => array(

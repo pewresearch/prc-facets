@@ -168,17 +168,27 @@ class Context_Provider {
 			$block->context['prc-platform/facets-context-provider']
 		);
 
+		// Find the core/query block and add directives to watch for new facet changes, EP sorting changes, and a class for when facets are processing.
+		$tag = new \WP_HTML_Tag_Processor( $content );
+		while ( $tag->next_tag() ) {
+			if ( $tag->has_class( 'wp-block-query' ) ) {
+				$tag->set_attribute( 'data-wp-class--is-processing', 'prc-platform/facets-context-provider::state.isProcessing' );
+				$tag->set_attribute( 'data-wp-watch--on-selection', 'prc-platform/facets-context-provider::callbacks.onSelection' );
+				$tag->set_attribute( 'data-wp-watch--on-ep-sort-by-update', 'prc-platform/facets-context-provider::callbacks.onEpSortByUpdate' );
+			}
+			if ( $tag->has_class( 'wp-block-prc-block-tokens-list' ) ) {
+				$tag->set_attribute( 'data-wp-class--is-processing', 'prc-platform/facets-context-provider::state.isProcessing' );
+			}
+			if ( $tag->has_class( 'wp-block-prc-platform-facets-results-info' ) ) {
+				$tag->set_attribute( 'data-wp-class--is-processing', 'prc-platform/facets-context-provider::state.isProcessing' );
+			}
+		}
+		$content = $tag->get_updated_html();
+
 		return wp_sprintf(
 			'<div %1$s>%2$s</div>',
 			get_block_wrapper_attributes(
-				array(
-					'data-wp-interactive'                 => 'prc-platform/facets-context-provider',
-					'data-wp-class--no-posts'             => '!state.hasPosts',
-					'data-wp-class--is-processing'        => 'state.isProcessing',
-					'data-wp-init--facetsInit'            => 'callbacks.onInit',
-					'data-wp-watch--on-selection'         => 'callbacks.onSelection',
-					'data-wp-watch--on-ep-sort-by-update' => 'callbacks.onEpSortByUpdate',
-				)
+				array(),
 			),
 			$content,
 		);

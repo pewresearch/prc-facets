@@ -49,8 +49,7 @@ class Template {
 	 * @return string
 	 */
 	public function render_dropdown_facet( $facet, $inner_blocks ) {
-		$field_template                         = $inner_blocks[0]; // The innerblocks should contain the template for this block, we will render out the html for a default value and then use it as a template for the rest.
-		$field_template['attrs']['placeholder'] = 'Select ' . ( isset( $facet['label'] ) ? $facet['label'] : 'Choice' );
+		$field_template = $inner_blocks[0]; // The innerblocks should contain the template for this block, we will render out the html for a default value and then use it as a template for the rest.
 		// Force all form-input-select interactivity to be subsumed by facet-template.
 		$field_template['attrs']['interactiveSubsumption'] = true;
 		$field_template['attrs']['interactiveNamespace']   = 'prc-platform/facet-template';
@@ -133,12 +132,11 @@ class Template {
 			return '<!-- No facets data -->';
 		}
 
-		$facet_type        = array_key_exists( 'facetType', $attributes ) ? $attributes['facetType'] : 'checkbox';
-		$facet_limit       = array_key_exists( 'facetLimit', $attributes ) ? $attributes['facetLimit'] : 10;
-		$facet_name        = array_key_exists( 'facetName', $attributes ) ? $attributes['facetName'] : null;
-		$facet_label       = array_key_exists( 'facetLabel', $attributes ) ? $attributes['facetLabel'] : '';
-		$facet_placeholder = wp_strip_all_tags( $facet_label );
-		$facet_slug        = $facet_name;
+		$facet_type  = array_key_exists( 'facetType', $attributes ) ? $attributes['facetType'] : 'checkbox';
+		$facet_limit = array_key_exists( 'facetLimit', $attributes ) ? $attributes['facetLimit'] : 10;
+		$facet_name  = array_key_exists( 'facetName', $attributes ) ? $attributes['facetName'] : null;
+		$facet_label = array_key_exists( 'facetLabel', $attributes ) ? $attributes['facetLabel'] : '';
+		$facet_slug  = $facet_name;
 
 		if ( ! isset( $facets[ $facet_slug ] ) ) {
 			return '<!-- No facet data -->';
@@ -181,6 +179,19 @@ class Template {
 		$tag->next_tag( 'div' );
 		$style     = $tag->get_attribute( 'style' );
 		$classname = $tag->get_attribute( 'class' );
+		// Find the placeholder attribute on the input element inside.
+		$facet_placeholder = wp_strip_all_tags( $facet_label );
+		while ( $tag->next_tag(
+			array(
+				'tag_name' => 'input',
+			)
+		) ) {
+			$input_placeholder = $tag->get_attribute( 'placeholder' );
+			if ( ! empty( $input_placeholder ) ) {
+				$facet_placeholder = $input_placeholder;
+				break;
+			}
+		}
 
 		$block_wrapper_attrs = get_block_wrapper_attributes(
 			array(
@@ -198,6 +209,7 @@ class Template {
 				),
 				'data-wp-init'                        => 'callbacks.onTemplateInit',
 				'data-wp-watch--on-expand'            => 'callbacks.onExpand',
+				'data-wp-class--is-processing'        => 'state.isProcessing',
 				'data-wp-class--has-choices'          => 'state.hasChoices',
 				'data-wp-class--has-expanded-choices' => 'state.hasExpandedChoices',
 				'data-wp-class--has-selections'       => 'state.hasSelections',
