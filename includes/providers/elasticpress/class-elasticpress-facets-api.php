@@ -138,7 +138,7 @@ class ElasticPress_Facets_API {
 		$aggs = $ep_facet_aggs;
 
 		foreach ( $aggs as $facet_slug => $facets_data ) {
-			// Handle Year:
+			// Handle Year.
 			if ( in_array(
 				$facet_slug,
 				array(
@@ -150,7 +150,7 @@ class ElasticPress_Facets_API {
 				$aggs[ $facet_slug ] = $facets_data;
 				continue;
 			}
-			// Handle Taxonomy:
+			// Handle Taxonomy.
 			$matched_terms     = $facets_data;
 			$matched_term_keys = array_keys( $matched_terms );
 			// Get all the terms for this taxonomy.
@@ -291,7 +291,6 @@ class ElasticPress_Facets_API {
 			} else {
 				$facets[ $facet_slug ] = $this->process_datetime_facet( $facet_slug, $facets_data );
 			}
-			// do_action( 'qm/debug', ' -- Returned Facet:' . print_r( $facets[ $facet_slug ], true ) );
 		}
 
 		if ( ! is_preview() || ! empty( $facets ) ) {

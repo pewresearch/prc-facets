@@ -77,7 +77,11 @@ class Plugin {
 		require_once plugin_dir_path( __DIR__ ) . '/includes/providers/facet-wp/class-facetwp-middleware.php';
 		require_once plugin_dir_path( __DIR__ ) . '/includes/providers/elasticpress/class-elasticpress-middleware.php';
 		require_once plugin_dir_path( __DIR__ ) . '/includes/class-rest-api.php';
-		require_once plugin_dir_path( __DIR__ ) . '/blocks/class-blocks.php';
+
+		require_once PRC_FACETS_DIR . '/build/context-provider/class-context-provider.php';
+		require_once PRC_FACETS_DIR . '/build/results-info/class-results-info.php';
+		require_once PRC_FACETS_DIR . '/build/search-relevancy/class-search-relevancy.php';
+		require_once PRC_FACETS_DIR . '/build/template/class-template.php';
 	}
 
 	/**
@@ -90,7 +94,16 @@ class Plugin {
 		new Rest_API( $this->get_loader() );
 		new ElasticPress_Middleware( $this->get_loader() );
 		new FacetWP_Middleware( $this->get_loader() );
-		new Blocks( $this->get_loader() );
+
+		\wp_register_block_metadata_collection(
+			PRC_FACETS_DIR . '/build',
+			PRC_FACETS_DIR . '/build/blocks-manifest.php'
+		);
+
+		new Context_Provider( $this->get_loader() );
+		new Results_Info( $this->get_loader() );
+		new Search_Relevancy( $this->get_loader() );
+		new Template( $this->get_loader() );
 	}
 
 	/**

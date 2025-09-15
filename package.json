@@ -1,22 +1,43 @@
 {
-    "name": "@prc/facets",
-    "version": "1.0.0",
-    "description": "PRC Facets is a module for PRC Platform that...",
-    "scripts": {
-        "build": "wp-scripts build",
-        "test": "wp-scripts test-playwright",
-        "test:env:start": "wp-env start",
-        "test:env:stop": "wp-env stop",
-        "test:env:clean": "wp-env clean all && wp-env start",
-        "test:env:destroy": "wp-env destroy"
-    },
-    "devDependencies": {
-        "@playwright/test": "^1.51.1",
-        "@wordpress/e2e-test-utils-playwright": "^1.21.0",
-        "@wordpress/env": "^10.21.0",
-        "@wordpress/scripts": "^30.14.1"
-    },
-    "dependencies": {
-        "@wordpress/icons": "^10.21.0"
-    }
+	"name": "@prc/facets",
+	"version": "1.0.0",
+	"description": "PRC Facets is a module for the PRC Platform that offers advanced faceted search and filtering capabilities. It utilizes FacetWP and ElasticPress as providers, along with form-input-* blocks from the PRC Block Library as user interface components.",
+	"author": {
+		"name": "SRubenstein",
+		"email": "srubenstein@pewresearch.org"
+	},
+	"license": "GPL-2.0-or-later",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/pewresearch/prc-facets.git"
+	},
+	"keywords": [
+		"wordpress",
+		"plugin",
+		"facets",
+		"facetwp",
+		"elasticpress",
+		"search",
+		"filtering",
+		"blocks",
+		"gutenberg"
+	],
+	"scripts": {
+		"build": "wp-scripts build --experimental-modules --webpack-copy-php; wp-scripts build-blocks-manifest",
+		"start": "wp-scripts build-blocks-manifest; wp-scripts start --experimental-modules --webpack-copy-php",
+		"test": "wp-scripts test-playwright",
+		"test:env:start": "wp-env start",
+		"test:env:stop": "wp-env stop",
+		"test:env:clean": "wp-env clean all && wp-env start",
+		"test:env:destroy": "wp-env destroy"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.48.0",
+		"@wordpress/e2e-test-utils-playwright": "^1.30.0",
+		"@wordpress/env": "^10.30.0",
+		"@wordpress/scripts": "^30.23.0"
+	},
+	"dependencies": {
+		"@wordpress/icons": "^10.30.0"
+	}
 }

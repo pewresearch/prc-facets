@@ -26,8 +26,9 @@ class Rest_API {
 	 * Register REST API endpoints for facet templating.
 	 *
 	 * @hook prc_api_endpoints
-	 * @param array $endpoints
-	 * @return array $endpoints
+	 *
+	 * @param array $endpoints Current endpoints.
+	 * @return array $endpoints Modified endpoints.
 	 */
 	public function register_endpoints( $endpoints ) {
 		$settings = array(

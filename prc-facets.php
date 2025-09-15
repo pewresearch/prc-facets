@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       PRC Facets
  * Plugin URI:        https://github.com/pewresearch/prc-facets
- * Description:       A facets system for PRC Platform. With support for both FacetWP and ElasticPress Aggregations, this plugin allows for the management of facets and their display in a flexible and powerful way.
+ * Description:       PRC Facets is a module for the PRC Platform that offers advanced faceted search and filtering capabilities. It utilizes FacetWP and ElasticPress as providers, along with form-input-* blocks from the PRC Block Library as user interface components.
  * Version:           1.0.0
  * Requires at least: 6.7
  * Requires PHP:      8.2
@@ -37,7 +37,6 @@ if ( ! defined( 'DEFAULT_TECHNICAL_CONTACT' ) ) {
 
 define( 'PRC_FACETS_FILE', __FILE__ );
 define( 'PRC_FACETS_DIR', __DIR__ );
-define( 'PRC_FACETS_BLOCKS_DIR', __DIR__ . '/blocks' );
 define( 'PRC_FACETS_VERSION', '1.0.0' );
 
 /**

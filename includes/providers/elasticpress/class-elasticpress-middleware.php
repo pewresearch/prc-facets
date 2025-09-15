@@ -12,11 +12,49 @@ namespace PRC\Platform\Facets;
  */
 class ElasticPress_Middleware {
 	/**
+	 * Debug mode flag.
+	 *
+	 * @var bool
+	 */
+	private static $debug_mode = null;
+
+	/**
 	 * The ElasticPress Facets class.
 	 *
 	 * @var \ElasticPress\Feature\Facets\Facets
 	 */
 	protected $ep_facets;
+
+	/**
+	 * Check if debug mode is enabled.
+	 *
+	 * @return bool True if debug mode is enabled.
+	 */
+	private static function is_debug_mode() {
+		if ( null === self::$debug_mode ) {
+			self::$debug_mode = defined( 'PRC_FACETS_DEBUG' ) && PRC_FACETS_DEBUG;
+		}
+		return self::$debug_mode;
+	}
+
+	/**
+	 * Log debug information.
+	 *
+	 * @param string $message The message to log.
+	 * @param mixed  $data    Optional data to log.
+	 */
+	private static function debug_log( $message, $data = null ) {
+		if ( ! self::is_debug_mode() ) {
+			return;
+		}
+
+		$log_message = '[PRC Facets - ElasticPress] ' . $message;
+		if ( null !== $data ) {
+			$log_message .= ' | Data: ' . wp_json_encode( $data );
+		}
+
+		error_log( $log_message ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	}
 
 	/**
 	 * Constructor.
@@ -37,6 +75,10 @@ class ElasticPress_Middleware {
 			$loader->add_filter( 'ep_facet_taxonomies_size', $this, 'set_facet_taxonomies_size', 10, 2 );
 			$loader->add_filter( 'ep_set_sort', $this, 'sort_ep_by_date', 20, 2 );
 			$loader->add_filter( 'prc_platform_rewrite_query_vars', $this, 'register_query_vars' );
+
+			self::debug_log( 'ElasticPress Middleware initialized' );
+		} else {
+			self::debug_log( 'ElasticPress Facets class not available - skipping initialization' );
 		}
 	}
 
@@ -49,6 +91,13 @@ class ElasticPress_Middleware {
 	 */
 	public function take_over_pub_listing_queries( $query ) {
 		if ( $query->get( 'isPubListingQuery' ) && $query->is_search() ) {
+			self::debug_log(
+				'Taking over publication listing query with ElasticPress',
+				array(
+					'is_search'  => $query->is_search(),
+					'query_vars' => $query->query_vars,
+				)
+			);
 			$query->set( 'ep_integrate', true );
 		}
 	}
@@ -93,10 +142,11 @@ class ElasticPress_Middleware {
 	 * Add taxonomy aggregations to ElasticPress.
 	 *
 	 * @hook ep_facet_include_taxonomies
-	 * @param array $taxonomies The taxonomies.
+	 *
 	 * @return array $taxonomies The taxonomies.
 	 */
 	public static function get_facets_settings() {
+		self::debug_log( 'Getting ElasticPress facets settings' );
 		$to_return = array();
 
 		$category = get_taxonomy( 'category' );
@@ -135,6 +185,7 @@ class ElasticPress_Middleware {
 			'facet_type' => self::get_facet_type( 'years' ),
 		);
 
+		self::debug_log( 'Configured facets', array_keys( $to_return ) );
 		return $to_return;
 	}
 
@@ -145,7 +196,9 @@ class ElasticPress_Middleware {
 	 * @return array $taxonomies The taxonomies.
 	 */
 	public function register_facets( $taxonomies ) {
-		return self::get_facets_settings();
+		$facets = self::get_facets_settings();
+		self::debug_log( 'Registering facets with ElasticPress', array_keys( $facets ) );
+		return $facets;
 	}
 
 	/**
@@ -173,6 +226,7 @@ class ElasticPress_Middleware {
 		if ( ! get_query_var( 'ep_sort__by_date' ) ) {
 			return $sort;
 		}
+		self::debug_log( 'Sorting ElasticPress results by date', array( 'order' => $order ) );
 		$sort = array(
 			array(
 				'post_date' => array(
@@ -198,6 +252,16 @@ class ElasticPress_Middleware {
 		$years_filter = get_query_var( 'ep_filter_years' );
 		$post_filter  = $args['post_filter'];
 
+		if ( self::is_debug_mode() && ( ! empty( $post_filter ) || ! empty( $years_filter ) ) ) {
+			self::debug_log(
+				'Adding filters to ElasticPress query',
+				array(
+					'years_filter'    => $years_filter,
+					'has_post_filter' => ! empty( $post_filter ),
+				)
+			);
+		}
+
 		// The taxonomy "should" statements that need to be restructured.
 		if ( ! isset( $post_filter['bool']['must'][0]['bool']['should'] ) ) {
 			return $args;
@@ -219,7 +283,6 @@ class ElasticPress_Middleware {
 			if ( null === $key ) {
 				continue;
 			}
-			do_action( 'qm/debug', 'ElasticPress_Middleware::add_filters_to_query::key:' . print_r( $key, true ) );
 			if ( 'terms.years.slug' === $key ) {
 				$item = array(
 					'term' => array(
@@ -240,11 +303,7 @@ class ElasticPress_Middleware {
 		// Add the new structured must/should statements.
 		$post_filter['bool']['must'][0]['bool']['must'] = $new;
 
-		do_action( 'qm/debug', 'ElasticPress_Middleware::add_filters_to_query::after post_filter:' . print_r( $post_filter, true ) );
-
-
 		$args['post_filter'] = $post_filter;
-
 
 		return $args;
 	}
@@ -260,7 +319,6 @@ class ElasticPress_Middleware {
 	 * @return array $formatted_args The formatted args.
 	 */
 	public function add_date_aggregations( $formatted_args, $args, $wp_query ) {
-		do_action( 'qm/debug', 'ElasticPress_Middleware::add_date_aggregations::formatted_args:' . print_r( $formatted_args['post_filter'], true ) );
 		// Add years aggregation.
 		$formatted_args['aggs']['date_histogram'] = array(
 			'filter' => $formatted_args['post_filter'],

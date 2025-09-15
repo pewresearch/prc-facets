@@ -28,7 +28,7 @@ function format_label( $label ) {
  * @return bool True if we should be using ElasticPress facets, false otherwise.
  */
 function use_ep_facets() {
-	$uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( $_SERVER['REQUEST_URI'] ) : '';
+	$uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 	if ( strpos( $uri, '/search' ) !== false ) {
 		return true;
 	}
@@ -71,7 +71,7 @@ function construct_cache_key( $query = array(), $selected = array() ) {
 function construct_cache_group() {
 	global $wp;
 	// Construct an array of URL parameters from the current request to WP.
-	$url_params = wp_parse_url( '/' . add_query_arg( array( $_GET ), $wp->request . '/' ) );
+	$url_params = wp_parse_url( '/' . add_query_arg( array(), $wp->request . '/' ) );
 	if ( ! is_array( $url_params ) || ! array_key_exists( 'path', $url_params ) ) {
 		return false;
 	}

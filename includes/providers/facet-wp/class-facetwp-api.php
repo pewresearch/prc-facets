@@ -343,12 +343,12 @@ class FacetWP_API {
 		if ( 1 === get_current_blog_id() ) {
 			$failover = true;
 		}
-		// If a request from Googlebot, failover. 
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && strpos( $_SERVER['HTTP_USER_AGENT'], 'Googlebot' ) !== false ) {
+		// If a request from Googlebot, failover.
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && strpos( $_SERVER['HTTP_USER_AGENT'], 'Googlebot' ) !== false ) { // phpcs:ignore
 			$failover = true;
 		}
 		if ( is_search() || $failover ) {
-			do_action( 'qm/error', 'Facets Failover' . print_r( $this->registered_facets, true ) );
+			do_action( 'qm/error', 'Facets Failover' . print_r( $this->registered_facets, true ) ); // phpcs:ignore
 			return array(
 				'facets'     => array(),
 				'query_args' => array(),
@@ -378,7 +378,7 @@ class FacetWP_API {
 		$data = $this->process_request( $args );
 		// Double check that facets exists in the data.
 		if ( ! array_key_exists( 'facets', $data ) ) {
-			do_action( 'qm/error', 'No facets data' . print_r( $data, true ) );
+			do_action( 'qm/error', 'No facets data' . print_r( $data, true ) ); // phpcs:ignore
 			return array(
 				'facets'     => array(),
 				'pager'      => array(),

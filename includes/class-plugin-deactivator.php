@@ -7,8 +7,6 @@
 
 namespace PRC\Platform\Facets;
 
-use DEFAULT_TECHNICAL_CONTACT;
-
 /**
  * Plugin deactivator.
  *
@@ -16,8 +14,13 @@ use DEFAULT_TECHNICAL_CONTACT;
  */
 class Plugin_Deactivator {
 
+	/**
+	 * Deactivate the plugin.
+	 *
+	 * @since    1.0.0
+	 */
 	public static function deactivate() {
-		flush_rewrite_rules();
+		flush_rewrite_rules(); // phpcs:ignore
 
 		wp_mail(
 			DEFAULT_TECHNICAL_CONTACT,
