@@ -320,7 +320,7 @@ class ElasticPress_Middleware {
 	 */
 	public function add_date_aggregations( $formatted_args, $args, $wp_query ) {
 		// Add years aggregation.
-		$formatted_args['aggs']['date_histogram'] = array(
+		$formatted_args['aggs']['terms']['aggs']['date_histogram'] = array(
 			'filter' => $formatted_args['post_filter'],
 			'aggs'   => array(
 				'years' => array(
@@ -350,8 +350,8 @@ class ElasticPress_Middleware {
 			return $response;
 		}
 
-		if ( isset( $response['aggregations']['date_histogram']['years']['buckets'] ) ) {
-			$years = $response['aggregations']['date_histogram']['years']['buckets'] ?? array();
+		if ( isset( $response['aggregations']['terms']['date_histogram']['years']['buckets'] ) ) {
+			$years = $response['aggregations']['terms']['date_histogram']['years']['buckets'] ?? array();
 
 			$GLOBALS['ep_facet_aggs']['years'] = array();
 

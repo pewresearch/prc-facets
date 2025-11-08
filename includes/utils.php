@@ -44,6 +44,12 @@ function use_ep_facets() {
  */
 function construct_cache_key( $query = array(), $selected = array() ) {
 	$invalidate = '06/12/2025';
+	
+	// Ensure $query is an array
+	if ( ! is_array( $query ) ) {
+		$query = array();
+	}
+	
 	// Remove pagination from the query args.
 	$query = array_merge(
 		$query,
@@ -51,7 +57,13 @@ function construct_cache_key( $query = array(), $selected = array() ) {
 			'paged' => 1,
 		)
 	);
-	// Construct an md5 hash of the query and selected facets and a quick invalidation metho.
+	
+	// Ensure $selected is an array
+	if ( ! is_array( $selected ) ) {
+		$selected = array();
+	}
+	
+	// Construct an md5 hash of the query and selected facets and a quick invalidation method.
 	return md5(
 		wp_json_encode(
 			array(
