@@ -410,7 +410,7 @@ class FacetWP_API {
 	 * @return array The facets.
 	 */
 	public function get_facets() {
-		return $this->query['facets'];
+		return isset( $this->query['facets'] ) ? $this->query['facets'] : array();
 	}
 
 	/**
@@ -419,6 +419,6 @@ class FacetWP_API {
 	 * @return array The pagination.
 	 */
 	public function get_pagination() {
-		return $this->query['pager'];
+		return isset( $this->query['pager'] ) ? $this->query['pager'] : array();
 	}
 }
