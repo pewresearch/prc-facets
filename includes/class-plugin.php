@@ -104,6 +104,32 @@ class Plugin {
 		new Results_Info( $this->get_loader() );
 		new Search_Relevancy( $this->get_loader() );
 		new Template( $this->get_loader() );
+
+		// Disable WordPress date archives - faceted search handles date filtering instead.
+		$this->loader->add_action( 'template_redirect', $this, 'disable_date_archives' );
+	}
+
+	/**
+	 * Disable WordPress date archives (month, day only).
+	 *
+	 * PRC uses faceted search for date-based filtering instead of WordPress's
+	 * built-in date archives. This prevents thin content pages and ensures
+	 * all date-based navigation goes through the faceted search system.
+	 *
+	 * Note: Year archives are excluded here because they are redirected to
+	 * /publications/?_years=YYYY by prc-platform-core's Permalink_Rewrites class.
+	 *
+	 * @hook template_redirect
+	 * @return void
+	 */
+	public function disable_date_archives() {
+		// Only 404 month and day archives; year archives are redirected by prc-platform-core.
+		if ( is_month() || is_day() ) {
+			global $wp_query;
+			$wp_query->set_404();
+			status_header( 404 );
+			nocache_headers();
+		}
 	}
 
 	/**

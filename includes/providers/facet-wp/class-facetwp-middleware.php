@@ -309,7 +309,7 @@ class FacetWP_Middleware {
 	 * @return mixed
 	 */
 	public function filter_facetwp_indexer_args( $args ) {
-		$query_defaults = \PRC\Platform\Publication_Listing::get_filtered_query_args( $args, null );
+		$query_defaults = \PRC\Platform\Publication_Listing\Query::get_filtered_query_args( $args, null );
 		$query_defaults = apply_filters( 'prc_platform__facetwp_indexer_query_args', $query_defaults );
 		return array_merge( $args, $query_defaults );
 	}

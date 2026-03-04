@@ -109,7 +109,7 @@ class FacetWP_API {
 	 * @return array The query arguments.
 	 */
 	public function construct_query_args( $query_args = array() ) {
-		$query_args = \PRC\Platform\Publication_Listing::get_filtered_query_args( $query_args, null );
+		$query_args = \PRC\Platform\Publication_Listing\Query::get_filtered_query_args( $query_args, null );
 		$query_args = array_merge(
 			$query_args,
 			array(
