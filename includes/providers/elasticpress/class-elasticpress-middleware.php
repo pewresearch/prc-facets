@@ -74,7 +74,7 @@ class ElasticPress_Middleware {
 			$loader->add_filter( 'ep_valid_response', $this, 'include_date_aggregation_in_response', 19, 4 );
 			$loader->add_filter( 'ep_facet_taxonomies_size', $this, 'set_facet_taxonomies_size', 10, 2 );
 			$loader->add_filter( 'ep_set_sort', $this, 'sort_ep_by_date', 20, 2 );
-			$loader->add_filter( 'prc_platform_rewrite_query_vars', $this, 'register_query_vars' );
+			$loader->add_filter( 'query_vars', $this, 'register_query_vars' );
 
 			self::debug_log( 'ElasticPress Middleware initialized' );
 		} else {
@@ -204,7 +204,7 @@ class ElasticPress_Middleware {
 	/**
 	 * Register the query vars.
 	 *
-	 * @hook prc_platform_rewrite_query_vars
+	 * @hook query_vars
 	 * @param array $qvars The query vars.
 	 * @return array $qvars The query vars.
 	 */

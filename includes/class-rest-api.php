@@ -19,34 +19,30 @@ class Rest_API {
 	 * @param Loader $loader The loader.
 	 */
 	public function __construct( $loader ) {
-		$loader->add_filter( 'prc_api_endpoints', $this, 'register_endpoints' );
+		$loader->add_action( 'rest_api_init', $this, 'register_endpoints' );
 	}
 
 	/**
-	 * Register REST API endpoints for facet templating.
-	 *
-	 * @hook prc_api_endpoints
-	 *
-	 * @param array $endpoints Current endpoints.
-	 * @return array $endpoints Modified endpoints.
+	 * @hook rest_api_init
 	 */
-	public function register_endpoints( $endpoints ) {
-		$settings = array(
-			'route'               => '/facets/get-settings',
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'restfully_get_facet_settings' ),
-			'permission_callback' => '__return_true',
-			'args'                => array(
-				'templateSlug' => array(
-					'description' => 'The slug of the site-editor template. This is used to determine which facets middleware should be enabled.',
-					'type'        => 'string',
-					'required'    => true,
-					'default'     => 'archive',
+	public function register_endpoints() {
+		register_rest_route(
+			'prc-api/v3',
+			'/facets/get-settings',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'restfully_get_facet_settings' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'templateSlug' => array(
+						'description' => 'The slug of the site-editor template. This is used to determine which facets middleware should be enabled.',
+						'type'        => 'string',
+						'required'    => true,
+						'default'     => 'archive',
+					),
 				),
-			),
+			)
 		);
-		array_push( $endpoints, $settings );
-		return $endpoints;
 	}
 
 	/**

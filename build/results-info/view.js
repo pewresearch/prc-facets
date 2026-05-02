@@ -1,2 +1,1 @@
 import{getServerState as t,store as e}from"@wordpress/interactivity";e("prc-platform/facets-context-provider",{state:{get resultsText(){const{pagination:e}=t(),{page:r,per_page:a,total_pages:s,total_rows:o}=e;let p,i;return 1===s?(p=1,i=o):(p=r<=1?1:r*a+1,i=r<=1?a:r*a+a),`Displaying ${p} - ${i} of ${o} results`}}});
-//# sourceMappingURL=view.js.map

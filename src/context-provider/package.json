@@ -3,8 +3,8 @@
 	"description": "dles passing facets context to query blocks and facet ui blocks.",
 	"license": "GPL-2.0-or-later",
 	"devDependencies": {
-		"@wordpress/icons": "^10.5.0",
-		"@wordpress/scripts": "^30.0.2"
+		"@wordpress/icons": "^10.22.0",
+		"@wordpress/scripts": "^31.4.0"
 	},
 	"scripts": {
 		"build": "wp-scripts build --experimental-modules",
