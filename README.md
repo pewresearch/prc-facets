@@ -127,7 +127,7 @@ npm run start -w @prc/facets
 Tests use Playwright against a `wp-env` environment. wp-env and Playwright are centralized at the monorepo root:
 
 ```bash
-npm run env:start
+npm run vip:start
 npm test -- tests/prc-facets/
 ```
 
