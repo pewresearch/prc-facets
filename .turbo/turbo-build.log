@@ -33,7 +33,7 @@ built modules 2.69 KiB (css/mini-extract) 25.8 KiB (javascript) [1m[33m[built]
     [1m./src/results-info/index.js + 7 modules[39m[22m 3.65 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
     [1m./src/search-relevancy/index.js + 7 modules[39m[22m 4.55 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
     [1m./src/template/index.js + 15 modules[39m[22m 12.1 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
-webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 3596 ms
+webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 3370 ms
 
 assets by path [1m[32mtemplate/[39m[22m 8.61 KiB
   asset [1m[32mtemplate/view.js[39m[22m 8.41 KiB [1m[32m[emitted][39m[22m [javascript module] [1m[32m[minimized][39m[22m (name: template/view)
@@ -53,5 +53,5 @@ modules by path [1m./src/[39m[22m 26.7 KiB
   [1m./src/search-relevancy/view.js + 1 modules[39m[22m 1.44 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
   [1m./src/template/view.js + 1 modules[39m[22m 24 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
 [1mexternal "@wordpress/interactivity-router"[39m[22m 42 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
-webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 2493 ms
+webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 2508 ms
 Block metadata PHP file generated at: build/blocks-manifest.php
