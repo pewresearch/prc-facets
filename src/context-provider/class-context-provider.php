@@ -33,6 +33,13 @@ class Context_Provider {
 	public $selected = array();
 
 	/**
+	 * Whether facet controls are disabled (ES degraded mode).
+	 *
+	 * @var bool
+	 */
+	public $is_disabled = false;
+
+	/**
 	 * The constructor.
 	 *
 	 * @param string $loader The loader.
@@ -70,7 +77,6 @@ class Context_Provider {
 
 	/**
 	 * Fetch the facets data ONCE and store on server memory.
-	 * Later, we'll make this data accessible via block context in the add_facet_data_to_context method.
 	 *
 	 * @hook pre_render_block
 	 *
@@ -80,19 +86,14 @@ class Context_Provider {
 	 * @return null
 	 */
 	public function hoist_facet_data_to_pre_render_stage( $pre_render, $parsed_block, $parent_block_instance ) {
+		unset( $parent_block_instance );
 		if ( 'prc-platform/facets-context-provider' === $parsed_block['blockName'] ) {
 			global $wp_query;
-			if ( use_ep_facets() ) {
-				$facets_api       = new ElasticPress_Facets_API( $wp_query->query );
-				$this->facets     = $facets_api->get_facets();
-				$this->pagination = $facets_api->get_pagination();
-				$this->selected   = $facets_api->selected;
-			} else {
-				$facetwp_api      = new FacetWP_API( $wp_query->query );
-				$this->facets     = $facetwp_api->get_facets();
-				$this->pagination = $facetwp_api->get_pagination();
-				$this->selected   = $facetwp_api->selected;
-			}
+			$facets_api       = new ElasticPress_Facets_API( $wp_query->query );
+			$this->facets     = $facets_api->get_facets();
+			$this->pagination = $facets_api->get_pagination();
+			$this->selected   = $facets_api->selected;
+			$this->is_disabled = (bool) $facets_api->is_degraded;
 		}
 		return null;
 	}
@@ -105,11 +106,28 @@ class Context_Provider {
 	public function get_tokens_from_selected_facets() {
 		$tokens = array();
 		foreach ( $this->selected as $selected_facet => $selected_values ) {
+			if ( ! is_array( $selected_values ) ) {
+				continue;
+			}
 			foreach ( $selected_values as $selected_value ) {
+				$label = $selected_value;
+				if ( 'time_since' === $selected_facet ) {
+					$labels = ElasticPress_Middleware::get_time_since_choices();
+					$label  = $labels[ $selected_value ] ?? ucwords( str_replace( array( '-', '_' ), ' ', $selected_value ) );
+				} elseif ( taxonomy_exists( $selected_facet ) ) {
+					$term = get_term_by( 'slug', $selected_value, $selected_facet );
+					if ( $term && ! is_wp_error( $term ) ) {
+						$label = $term->name;
+					} else {
+						$label = ucwords( str_replace( array( '-', '_' ), ' ', $selected_value ) );
+					}
+				} else {
+					$label = ucwords( str_replace( array( '-', '_' ), ' ', $selected_value ) );
+				}
 				$tokens[] = array(
 					'value' => $selected_facet,
 					'slug'  => sanitize_title( $selected_value ),
-					'label' => ucwords( str_replace( array( '-', '_' ), ' ', $selected_value ) ),
+					'label' => $label,
 				);
 			}
 		}
@@ -117,7 +135,7 @@ class Context_Provider {
 	}
 
 	/**
-	 * Get the facet data from server memory and apply it to the block context for the context provider, facet template, and selected tokens blocks.
+	 * Get the facet data from server memory and apply it to the block context.
 	 *
 	 * @hook render_block_context
 	 *
@@ -131,7 +149,8 @@ class Context_Provider {
 			array(
 				'prc-platform/facets-context-provider',
 				'prc-platform/facet-template',
-			)
+			),
+			true
 		) ) {
 			return $context;
 		}
@@ -143,8 +162,8 @@ class Context_Provider {
 			'pagination'   => $this->pagination,
 			'prefetched'   => array(),
 			'isProcessing' => false,
-			'isDisabled'   => false,
-			'urlKey'       => use_ep_facets() ? 'ep_filter_' : '_', // This is the key that is used to store the facet data in the url.
+			'isDisabled'   => $this->is_disabled,
+			'urlKey'       => 'ep_filter_',
 		);
 
 		return $context;
@@ -154,12 +173,12 @@ class Context_Provider {
 	 * Render the block callback.
 	 *
 	 * @param mixed $attributes The attributes.
-	 * @param mixed $content The content.
+	 * @param string $content The content.
 	 * @param mixed $block The block.
 	 * @return mixed
 	 */
 	public function render_block_callback( $attributes, $content, $block ) {
-		wp_enqueue_script( 'wp-url' );
+		unset( $attributes );
 		wp_enqueue_script( 'wp-api-fetch' );
 
 		// Add facet data into client memory.
@@ -188,7 +207,9 @@ class Context_Provider {
 		return wp_sprintf(
 			'<div %1$s>%2$s</div>',
 			get_block_wrapper_attributes(
-				array(),
+				array(
+					'data-wp-class--is-degraded' => 'prc-platform/facets-context-provider::state.isDisabled',
+				),
 			),
 			$content,
 		);

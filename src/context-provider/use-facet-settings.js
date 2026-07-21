@@ -5,9 +5,16 @@ import { useState, useEffect, useMemo } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 
-export default function useFacetSettings(templateSlug) {
+/**
+ * Fetch registered facet settings for the editor.
+ *
+ * @param {string}  templateSlug Template slug passed to the REST endpoint.
+ * @param {boolean} enabled      When false, skip the request (e.g. provider context already present).
+ * @return {{ settings: Object|null, isLoading: boolean }} Facet settings map and loading state.
+ */
+export default function useFacetSettings(templateSlug, enabled = true) {
 	const [settings, setSettings] = useState(null);
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(enabled);
 
 	const reduceSettings = (newSettings) => {
 		const newFacets = {};
@@ -24,25 +31,40 @@ export default function useFacetSettings(templateSlug) {
 	};
 
 	useEffect(() => {
+		if (!enabled) {
+			setSettings(null);
+			setIsLoading(false);
+			return;
+		}
+
+		let cancelled = false;
+		setIsLoading(true);
+
 		apiFetch({
 			path: addQueryArgs('/prc-api/v3/facets/get-settings', {
 				templateSlug,
 			}),
 		})
 			.then((newSettings) => {
-				console.log('/prc-api/v3/facets/get-settings', {
-					newSettings,
-					templateSlug,
-				});
+				if (cancelled) {
+					return;
+				}
 				const newFacets = reduceSettings(newSettings);
 				setSettings(newFacets);
 				setIsLoading(false);
 			})
-			.catch((error) => {
+			.catch(() => {
+				if (cancelled) {
+					return;
+				}
 				setSettings(null);
 				setIsLoading(false);
 			});
-	}, []);
+
+		return () => {
+			cancelled = true;
+		};
+	}, [enabled, templateSlug]);
 
 	return useMemo(() => {
 		return {

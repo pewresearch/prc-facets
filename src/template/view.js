@@ -17,11 +17,7 @@ import {
 	withSyncEvent,
 	getElement,
 } from '@wordpress/interactivity';
-
-/**
- * Internal Dependencies
- */
-const { addQueryArgs } = window.wp.url;
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Format facet count for display.
@@ -211,18 +207,24 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 			return facets[facetSlug].selected.includes(value);
 		},
 		get isInputDisabled() {
+			// ES degraded mode disables all controls.
+			if (state.isDisabled) {
+				return true;
+			}
 			const context = getContext();
-			const { choice } = context;
-			const { value, label, facetSlug } = choice;
+			const { choice, facetType } = context;
+			const { value, facetSlug, type } = choice || {};
+			// Checkbox OR facets support ghosts (FacetWP parity): keep clickable at count 0.
+			const choiceType = type || facetType;
+			if (choiceType === 'checkbox') {
+				return false;
+			}
 			const count = getPropertyFromObjects(
 				'count',
 				value,
-				state.facets[facetSlug].choices
+				state.facets[facetSlug]?.choices || []
 			);
-			if (count === 0) {
-				return true;
-			}
-			return false;
+			return count === 0;
 		},
 		get isInputError() {
 			return false;
@@ -477,6 +479,22 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 		 */
 		onClear: (facetSlug, facetValue = null) => {
 			debugLog('Clearing facet', { facetSlug, facetValue });
+
+			// Clearing research-teams on a /{team}/datasets path navigates to
+			// the unscoped datasets archive so path-scoped preload stays consistent.
+			if (
+				facetSlug === 'research-teams' &&
+				!facetValue &&
+				typeof window !== 'undefined' &&
+				/\/[^/]+\/datasets\/?$/.test(window.location.pathname)
+			) {
+				const nextPath = window.location.pathname.replace(
+					/\/[^/]+\/datasets\/?$/,
+					'/datasets/'
+				);
+				window.location.assign(nextPath);
+				return;
+			}
 			
 			// Because onClear actions occur after routing
 			// has occured we need to get the selected from the server state.
@@ -713,23 +731,24 @@ const { state, actions } = store('prc-platform/facets-context-provider', {
 		onSelection() {
 			const selected = state.selected;
 			const keysLength = Object.keys(selected).length;
-			
+
 			debugLog('Facet selection changed', {
 				selected,
 				keysLength,
-				totalSelections: Object.values(selected).flat().length
+				totalSelections: Object.values(selected).flat().length,
 			});
-			
-			// No selections? Disable updates.
+
+			// Skip refetch when selection is empty (initial load / fully cleared
+			// via onClear which calls updateResults itself). Do not toggle
+			// isDisabled here — that flag is reserved for ES degraded mode and
+			// incorrectly disabled all facet inputs when nothing was selected.
 			if (keysLength <= 0) {
-				debugLog('No selections, disabling updates');
-				state.isDisabled = true;
-			} else {
-				// Once we have some selections, lets run a refresh.
-				debugLog('Running results update for selections');
-				actions.updateResults();
-				state.isDisabled = false;
+				debugLog('No selections, skipping results update');
+				return;
 			}
+
+			debugLog('Running results update for selections');
+			actions.updateResults();
 		},
 		/**
 		 * When the epSortByDate flag is toggled on add ep_sort__by_date

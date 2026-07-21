@@ -93,7 +93,9 @@ class Plugin {
 	private function init_dependencies() {
 		new Rest_API( $this->get_loader() );
 		new ElasticPress_Middleware( $this->get_loader() );
-		new FacetWP_Middleware( $this->get_loader() );
+		// Soft-cutover: keep FacetWP plugins installed but dormant — do not
+		// register FacetWP_Middleware. Disable FacetWP main-query engagement.
+		$this->loader->add_filter( 'facetwp_is_main_query', $this, 'disable_facetwp_main_query', 10, 2 );
 
 		\wp_register_block_metadata_collection(
 			PRC_FACETS_DIR . '/build',
@@ -107,6 +109,20 @@ class Plugin {
 
 		// Disable WordPress date archives - faceted search handles date filtering instead.
 		$this->loader->add_action( 'template_redirect', $this, 'disable_date_archives' );
+	}
+
+	/**
+	 * Soft-cutover: FacetWP remains installed but must not own the main query.
+	 *
+	 * @hook facetwp_is_main_query
+	 *
+	 * @param bool     $is_main_query Whether FacetWP considers this the main query.
+	 * @param \WP_Query $query         The query.
+	 * @return bool
+	 */
+	public function disable_facetwp_main_query( $is_main_query, $query ) {
+		unset( $is_main_query, $query );
+		return false;
 	}
 
 	/**

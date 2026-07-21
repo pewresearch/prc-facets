@@ -7,8 +7,6 @@
 
 namespace PRC\Platform\Facets;
 
-wp_enqueue_script( 'wp-url' );
-
 wp_interactivity_state(
 	'prc-platform/facets-search-relevancy',
 	array(

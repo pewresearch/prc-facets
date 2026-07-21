@@ -52,11 +52,7 @@ class Rest_API {
 	 * @return array The facet settings.
 	 */
 	public function restfully_get_facet_settings( WP_REST_Request $request ) {
-		$tempalte_slug = $request->get_param( 'templateSlug' );
-		if ( str_contains( $tempalte_slug, 'search' ) ) {
-			return ElasticPress_Middleware::get_facets_settings();
-		} else {
-			return FacetWP_Middleware::get_facets_settings();
-		}
+		unset( $request );
+		return ElasticPress_Middleware::get_facets_settings();
 	}
 }

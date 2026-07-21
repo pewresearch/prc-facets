@@ -5,22 +5,20 @@
 /**
  * WordPress Dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { useMemo } from '@wordpress/element';
+import { InspectorControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	SelectControl,
 	__experimentalNumberControl as NumberControl,
-	TextControl,
-	ToggleControl,
 } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
 
 /**
  * Internal Dependencies
  */
+import useFacetSettings from '../context-provider/use-facet-settings';
 
 const getTemplateForType = (type, name) => {
 	const defaultAttrs = {
@@ -122,12 +120,26 @@ export default function Controls({
 }) {
 	const { replaceInnerBlocks } = useDispatch('core/block-editor');
 
-	const { facetName, facetLabel, facetType, facetLimit } = attributes;
+	const { facetName, facetLimit } = attributes;
 
-	const { facetsContextProvider } = context;
+	const { facetsContextProvider, templateSlug } = context;
+	const hasProviderContext = Boolean(facetsContextProvider);
+	const { settings: restSettings, isLoading } = useFacetSettings(
+		templateSlug || 'archive',
+		!hasProviderContext
+	);
+	const facetSettings = facetsContextProvider || restSettings;
 
 	const options = useMemo(() => {
-		if (!facetsContextProvider) {
+		if (isLoading && !hasProviderContext) {
+			return [
+				{
+					label: 'Loading facets…',
+					value: '',
+				},
+			];
+		}
+		if (!facetSettings) {
 			return [
 				{
 					label: 'No Facets Found',
@@ -135,21 +147,20 @@ export default function Controls({
 				},
 			];
 		}
-		// console.log('facetsContextProvider', facetsContextProvider);
 		const newOptions = [
 			{
 				label: 'Select a Facet',
 				value: '',
 			},
 		];
-		Object.keys(facetsContextProvider).forEach((facetKey) => {
+		Object.keys(facetSettings).forEach((facetKey) => {
 			newOptions.push({
-				label: facetsContextProvider[facetKey].label,
-				value: facetsContextProvider[facetKey].name,
+				label: facetSettings[facetKey].label,
+				value: facetSettings[facetKey].name,
 			});
 		});
 		return newOptions;
-	}, [facetsContextProvider]);
+	}, [facetSettings, hasProviderContext, isLoading]);
 
 	return (
 		<InspectorControls>
@@ -160,10 +171,15 @@ export default function Controls({
 						help="Select a facet registered with the PRC Platform. Updating this will reset the template and any style changes."
 						options={options}
 						value={facetName}
+						disabled={
+							(isLoading && !hasProviderContext) || !facetSettings
+						}
 						onChange={(value) => {
 							const name = value;
-							console.log("FACET SELECTED:", facetsContextProvider[name]);
-							const { type, label } = facetsContextProvider[name];
+							if (!name || !facetSettings?.[name]) {
+								return;
+							}
+							const { type, label } = facetSettings[name];
 							setAttributes({
 								facetName: name,
 								facetType: type,

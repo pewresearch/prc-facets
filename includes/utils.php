@@ -25,14 +25,13 @@ function format_label( $label ) {
 /**
  * Determine if we should be using ElasticPress facets.
  *
+ * Soft-cutover: ElasticPress is the sole facets provider. Kept for
+ * back-compat call sites; always returns true.
+ *
  * @return bool True if we should be using ElasticPress facets, false otherwise.
  */
 function use_ep_facets() {
-	$uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-	if ( strpos( $uri, '/search' ) !== false ) {
-		return true;
-	}
-	return false;
+	return true;
 }
 
 /**
@@ -43,7 +42,7 @@ function use_ep_facets() {
  * @return string The cache key.
  */
 function construct_cache_key( $query = array(), $selected = array() ) {
-	$invalidate = '06/12/2025';
+	$invalidate = '07/20/2026-ep-only';
 	
 	// Ensure $query is an array
 	if ( ! is_array( $query ) ) {

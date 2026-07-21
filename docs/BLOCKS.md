@@ -53,7 +53,7 @@ This block has no user-configurable attributes. It automatically detects context
 - Facet state and configuration to all child blocks
 - Selected facet values
 - Query parameters
-- Provider information (FacetWP or ElasticPress)
+- Provider state (ElasticPress; `isDisabled` when ES degraded)
 
 ### Supports
 

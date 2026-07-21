@@ -1,18 +1,26 @@
 # PRC Facets Provider Documentation
 
-This document provides comprehensive documentation for the FacetWP and ElasticPress provider implementations in the PRC Facets plugin.
+ElasticPress (VIP Search) is the sole active facets provider. FacetWP code remains in-tree and dormant during soft-cutover until a later deletion PR after archive go/no-go soak.
 
 ## Table of Contents
 
 - [Provider Architecture](#provider-architecture)
-- [FacetWP Provider](#facetwp-provider)
+- [Soft-cutover status](#soft-cutover-status)
+- [FacetWP Provider](#facetwp-provider) (dormant)
 - [ElasticPress Provider](#elasticpress-provider)
 - [Provider Selection Logic](#provider-selection-logic)
 - [Cache Management](#cache-management)
 
+## Soft-cutover status
+
+- `ElasticPress_Middleware` is always registered; `FacetWP_Middleware` is not instantiated.
+- `facetwp_is_main_query` is forced false so FacetWP does not own main queries.
+- Context provider and REST settings always use ElasticPress (`urlKey` = `ep_filter_`).
+- FacetWP plugins stay installed until soak; do not delete `plugins/facetwp*` in this cutover.
+
 ## Provider Architecture
 
-The PRC Facets plugin uses a middleware pattern to abstract different faceting providers. Each provider implements a common interface while handling provider-specific functionality.
+The PRC Facets plugin uses a middleware pattern to abstract faceting providers. Each provider implements a common interface while handling provider-specific functionality.
 
 ### Provider Interface
 
@@ -186,41 +194,27 @@ The provider automatically creates Elasticsearch aggregations for:
 
 ### Query Takeover
 
-ElasticPress automatically takes over queries when:
-
-1. User is on a search page
-2. Facets are active in the query
-3. ElasticPress is enabled and configured
+ElasticPress integrates every main query flagged `isPubListingQuery` (publications, taxonomy archives, search) plus a dedicated dataset archive opt-in in `prc-datasets`. Facetable marking uses `ep_is_facetable` when needed.
 
 ## Provider Selection Logic
 
-### Automatic Provider Detection
+### Soft-cutover
 
 ```php
 function use_ep_facets() {
-    $uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw($_SERVER['REQUEST_URI']) : '';
-
-    // Use ElasticPress for search pages
-    if (strpos($uri, '/search') !== false) {
-        return true;
-    }
-
-    // Use FacetWP for all other pages
-    return false;
+    return true; // ElasticPress-only; FacetWP dormant
 }
 ```
 
-### Manual Provider Selection
+Kill-switch during soak: re-instantiate `FacetWP_Middleware` in `class-plugin.php` and restore URL-based selection if go/no-go fails. Prefer that over deleting FacetWP prematurely.
 
-Developers can force a specific provider:
+### URL scheme
 
-```php
-// Force ElasticPress
-add_filter('prc_facets_use_elasticpress', '__return_true');
+All surfaces use `ep_filter_*` query params. Legacy FacetWP underscore params are 301'd in `vip-config/server-redirects.php` before WordPress boots.
 
-// Force FacetWP
-add_filter('prc_facets_use_elasticpress', '__return_false');
-```
+### MySQL fallback
+
+When ES fails, visibility SQL still applies; facet filters are not re-applied on MySQL. UI renders disabled facet shells (`isDisabled`).
 
 ## Cache Management
 
@@ -228,7 +222,7 @@ add_filter('prc_facets_use_elasticpress', '__return_false');
 
 ```php
 function construct_cache_key($query = array(), $selected = array()) {
-    $invalidate = '06/12/2025'; // Manual cache invalidation date
+    $invalidate = '07/20/2026-ep-only'; // Manual cache invalidation date
 
     // Remove pagination from cache key
     $query = array_merge($query, array('paged' => 1));
