@@ -23,18 +23,6 @@ function format_label( $label ) {
 }
 
 /**
- * Determine if we should be using ElasticPress facets.
- *
- * Soft-cutover: ElasticPress is the sole facets provider. Kept for
- * back-compat call sites; always returns true.
- *
- * @return bool True if we should be using ElasticPress facets, false otherwise.
- */
-function use_ep_facets() {
-	return true;
-}
-
-/**
  * Constructs a cache key based on the current query and selected facets.
  *
  * @param array $query The current query.

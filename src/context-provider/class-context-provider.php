@@ -127,7 +127,7 @@ class Context_Provider {
 				$tokens[] = array(
 					'value' => $selected_facet,
 					'slug'  => sanitize_title( $selected_value ),
-					'label' => $label,
+					'label' => format_label( $label ),
 				);
 			}
 		}

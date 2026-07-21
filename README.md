@@ -4,9 +4,7 @@ Faceted search and filtering for PRC Platform archive and search pages, powered 
 
 ## Overview
 
-PRC Facets provides the filtering layer for publication listing and search pages. ElasticPress is the sole facets provider after the soft cutover from FacetWP. The `facets-context-provider` block fetches and distributes facet state server-side, then hands off to the Interactivity API for client-side navigation without full page reloads.
-
-FacetWP plugins remain installed but dormant until archive go/no-go soak completes; a later PR deletes FacetWP.
+PRC Facets provides the filtering layer for publication listing and search pages. ElasticPress is the sole facets provider. The `facets-context-provider` block fetches and distributes facet state server-side, then hands off to the Interactivity API for client-side navigation without full page reloads.
 
 ## Architecture
 
@@ -14,15 +12,14 @@ FacetWP plugins remain installed but dormant until archive go/no-go soak complet
 
 **JS (client):** Blocks under `src/` drive selection, URL construction (`ep_filter_*`), and result refresh via the Interactivity API.
 
-**Legacy URLs:** `plugins/prc-facets/vip-config/server-redirects.php` (loaded from root `vip-config` before WP boots) 301s FacetWP underscore params (`_categories`, `_authors`, etc.) to `ep_filter_*`. `_date_range` is stripped without remap.
+**Legacy URLs:** `plugins/prc-facets/vip-config/server-redirects.php` (loaded from root `vip-config` before WP boots) 301s legacy underscore params (`_categories`, `_authors`, etc.) to `ep_filter_*`. `_date_range` is stripped without remap.
 
 ## Key files
 
 | Path | Role |
 | --- | --- |
-| `includes/utils.php` | Cache key/group helpers; `use_ep_facets()` always `true` (compat) |
+| `includes/utils.php` | Cache key/group helpers |
 | `includes/providers/elasticpress/` | Middleware + Facets API |
-| `includes/providers/facet-wp/` | Dormant during soft-cutover (not instantiated) |
 | `vip-config/server-redirects.php` | Pre-WP legacy param redirects |
 | `src/context-provider/` | Always EP; exposes `isDisabled` for degraded shells |
 | `src/template/` | Facet UI + clear/`ep_filter_` URL actions |
@@ -39,7 +36,7 @@ FacetWP plugins remain installed but dormant until archive go/no-go soak complet
 | `years` | dropdown | `date_terms.year` aggregation |
 | `time_since` | radio | `past-month`, `past-6-months`, `past-12-months`, `past-2-years` |
 
-### Checkbox OR / AND-across (FacetWP parity)
+### Checkbox OR / AND-across
 
 Checkbox facets use **OR within** a taxonomy and **AND across** taxonomies (e.g. `ep_filter_formats=report,short-read` ∪ formats, AND `ep_filter_regions-countries=russia`). Taxonomy aggregations are **disjunctive** (each agg omits its own taxonomy filter) so sibling options keep useful counts. Checkbox UI allows **ghosts** (options remain clickable at count `0`).
 
@@ -58,6 +55,34 @@ Object-cache TTL remains ~30 minutes. Cache invalidation uses a dated `invalidat
 ## Debugging
 
 Define `PRC_FACETS_DEBUG` to log provider decisions and query modifications under `[PRC Facets - ElasticPress]`. Client: `window.prcFacetsDebug = true`.
+
+## FacetWP database cleanup
+
+After FacetWP plugins are removed from the deploy artifact, leftover options, cron hooks, and index tables can be cleared with:
+
+```bash
+# Preview (default)
+wp prc-facets clean-facetwp
+
+# Delete options, clear cron, DROP facetwp_index / facetwp_temp
+wp prc-facets clean-facetwp --dry-run=false
+```
+
+On VIP multisite, loop sites:
+
+```bash
+vip @pewresearch.<env> -- wp site list --field=url | while read -r url; do
+  echo "=== $url ==="
+  vip @pewresearch.<env> -- wp prc-facets clean-facetwp --url="$url"
+done
+
+# Then write:
+vip @pewresearch.<env> -- wp site list --field=url | while read -r url; do
+  vip @pewresearch.<env> -- wp prc-facets clean-facetwp --dry-run=false --url="$url"
+done
+```
+
+Deactivate any remaining FacetWP plugin stubs first if they still appear in `active_plugins`. Run alpha before production. Table drops use `$wpdb` because VIP blocks `DROP TABLE` via `wp db query`.
 
 ## Troubleshooting
 

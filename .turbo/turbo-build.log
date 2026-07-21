@@ -1,5 +1,5 @@
 
-> @prc/facets@2.0.0 build
+> @prc/facets@3.0.0 build
 > wp-scripts build --experimental-modules --webpack-copy-php && wp-scripts build-blocks-manifest
 
 assets by path [1m[32msearch-relevancy/[39m[22m 5.69 KiB 9 assets
@@ -8,7 +8,7 @@ assets by path [1m[32mtemplate/[39m[22m 23.3 KiB
   assets by chunk 4.53 KiB (name: template/style-index) 2 assets
   + 2 assets
 assets by path [1m[32mcontext-provider/[39m[22m 10.5 KiB
-  assets by path [1m[32mcontext-provider/*.php[39m[22m 6.36 KiB 2 assets
+  assets by path [1m[32mcontext-provider/*.php[39m[22m 6.38 KiB 2 assets
   assets by chunk 378 bytes (id hint: style) 2 assets
   + 2 assets
 assets by path [1m[32mresults-info/[39m[22m 4.45 KiB
@@ -33,7 +33,7 @@ built modules 2.69 KiB (css/mini-extract) 28.6 KiB (javascript) [1m[33m[built]
     [1m./src/results-info/index.js + 7 modules[39m[22m 3.65 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
     [1m./src/search-relevancy/index.js + 7 modules[39m[22m 4.55 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
     [1m./src/template/index.js + 18 modules[39m[22m 14.3 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
-webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 4191 ms
+webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 2607 ms
 
 assets by path [1m[32mtemplate/[39m[22m 10 KiB
   asset [1m[32mtemplate/view.js[39m[22m 9.83 KiB [1m[32m[emitted][39m[22m [javascript module] [1m[32m[minimized][39m[22m (name: template/view)
@@ -53,5 +53,5 @@ built modules 30.9 KiB [1m[33m[built][39m[22m
   [1m./src/search-relevancy/view.js + 1 modules[39m[22m 1.44 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
   [1m./src/template/view.js + 7 modules[39m[22m 28.5 KiB [1m[31m[not cacheable][39m[22m [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
   [1mexternal "@wordpress/interactivity-router"[39m[22m 42 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
-webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 3574 ms
+webpack 5.106.2 compiled [1m[32msuccessfully[39m[22m in 2032 ms
 Block metadata PHP file generated at: build/blocks-manifest.php

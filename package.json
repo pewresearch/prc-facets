@@ -1,7 +1,7 @@
 {
 	"name": "@prc/facets",
-	"version": "2.0.0",
-	"description": "PRC Facets is a module for the PRC Platform that offers advanced faceted search and filtering capabilities. It utilizes FacetWP and ElasticPress as providers, along with form-input-* blocks from the PRC Block Library as user interface components.",
+	"version": "3.0.0",
+	"description": "PRC Facets is a module for the PRC Platform that offers advanced faceted search and filtering capabilities. It uses ElasticPress (VIP Search) with form-input-* blocks from the PRC Block Library as user interface components.",
 	"author": {
 		"name": "SRubenstein",
 		"email": "srubenstein@pewresearch.org"
@@ -15,7 +15,6 @@
 		"wordpress",
 		"plugin",
 		"facets",
-		"facetwp",
 		"elasticpress",
 		"search",
 		"filtering",

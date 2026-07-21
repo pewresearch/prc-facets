@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       PRC Facets
  * Plugin URI:        https://github.com/pewresearch/prc-facets
- * Description:       PRC Facets is a module for the PRC Platform that offers advanced faceted search and filtering capabilities. It utilizes FacetWP and ElasticPress as providers, along with form-input-* blocks from the PRC Block Library as user interface components.
+ * Description:       PRC Facets is a module for the PRC Platform that offers advanced faceted search and filtering capabilities. It uses ElasticPress (VIP Search) with form-input-* blocks from the PRC Block Library as user interface components.
  * Version:           1.0.0
  * Requires at least: 6.7
  * Requires PHP:      8.2
@@ -46,6 +46,13 @@ require plugin_dir_path( __FILE__ ) . 'includes/utils.php';
 require plugin_dir_path( __FILE__ ) . 'includes/class-plugin.php';
 
 /**
+ * Optional CLI utilities (WP-CLI only).
+ */
+if ( defined( 'WP_CLI' ) && class_exists( '\WP_CLI' ) ) {
+	require plugin_dir_path( __FILE__ ) . 'includes/cli/class-cli-clean-facetwp.php';
+}
+
+/**
  * Begins execution of the plugin.
  *
  * Since everything within the plugin is registered via hooks,
@@ -57,5 +64,11 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-plugin.php';
 function run_prc_facets() {
 	$plugin = new Plugin();
 	$plugin->run();
+
+	if ( defined( 'WP_CLI' ) && class_exists( '\WP_CLI' ) ) {
+		if ( class_exists( '\PRC\Platform\Facets\CLI_Clean_FacetWP' ) ) {
+			\WP_CLI::add_command( 'prc-facets', new CLI_Clean_FacetWP() );
+		}
+	}
 }
 run_prc_facets();
