@@ -21,10 +21,10 @@ if ( ! class_exists( 'WPCOM_VIP_CLI_Command' ) ) {
  * ## EXAMPLES
  *
  *     # Preview what would be removed
- *     wp prc-facets clean-facetwp
+ *     wp prc facets clean-facetwp
  *
  *     # Delete for real
- *     wp prc-facets clean-facetwp --dry-run=false
+ *     wp prc facets clean-facetwp --dry-run=false
  */
 class CLI_Clean_FacetWP extends WPCOM_VIP_CLI_Command {
 
@@ -81,10 +81,10 @@ class CLI_Clean_FacetWP extends WPCOM_VIP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Preview
-	 *     wp prc-facets clean-facetwp
+	 *     wp prc facets clean-facetwp
 	 *
 	 *     # Delete for real
-	 *     wp prc-facets clean-facetwp --dry-run=false
+	 *     wp prc facets clean-facetwp --dry-run=false
 	 *
 	 * @subcommand clean-facetwp
 	 * @synopsis [--dry-run=<bool>]

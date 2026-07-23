@@ -67,7 +67,7 @@ function run_prc_facets() {
 
 	if ( defined( 'WP_CLI' ) && class_exists( '\WP_CLI' ) ) {
 		if ( class_exists( '\PRC\Platform\Facets\CLI_Clean_FacetWP' ) ) {
-			\WP_CLI::add_command( 'prc-facets', new CLI_Clean_FacetWP() );
+			\WP_CLI::add_command( 'prc facets', new CLI_Clean_FacetWP() );
 		}
 	}
 }

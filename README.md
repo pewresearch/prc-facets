@@ -62,10 +62,10 @@ After FacetWP plugins are removed from the deploy artifact, leftover options, cr
 
 ```bash
 # Preview (default)
-wp prc-facets clean-facetwp
+wp prc facets clean-facetwp
 
 # Delete options, clear cron, DROP facetwp_index / facetwp_temp
-wp prc-facets clean-facetwp --dry-run=false
+wp prc facets clean-facetwp --dry-run=false
 ```
 
 On VIP multisite, loop sites:
@@ -73,12 +73,12 @@ On VIP multisite, loop sites:
 ```bash
 vip @pewresearch.<env> -- wp site list --field=url | while read -r url; do
   echo "=== $url ==="
-  vip @pewresearch.<env> -- wp prc-facets clean-facetwp --url="$url"
+  vip @pewresearch.<env> -- wp prc facets clean-facetwp --url="$url"
 done
 
 # Then write:
 vip @pewresearch.<env> -- wp site list --field=url | while read -r url; do
-  vip @pewresearch.<env> -- wp prc-facets clean-facetwp --dry-run=false --url="$url"
+  vip @pewresearch.<env> -- wp prc facets clean-facetwp --dry-run=false --url="$url"
 done
 ```
 
